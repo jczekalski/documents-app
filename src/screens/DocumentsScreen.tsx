@@ -1,10 +1,9 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { Platform, StyleSheet, View } from "react-native";
 
 import { colors } from "../designSystem";
 
-import { normalizeKeys } from "@/utils";
+import { getDocuments } from "@/services/documents";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AddDocumentButton } from "../components/AddDocumentButton";
 import { DocumentList } from "../components/DocumentList";
@@ -23,10 +22,9 @@ export function DocumentsScreen() {
   const fetchData = async () => {
     setRefreshing(true);
     try {
-      const response = await axios.get(process.env.EXPO_PUBLIC_API_URL!);
-      const normalizedData = normalizeKeys(response.data) as Document[];
-      console.log(JSON.stringify(normalizedData, null, 2));
-      setDocuments(normalizedData);
+      const documents = await getDocuments();
+      console.log(JSON.stringify(documents, null, 2));
+      setDocuments(documents);
     } catch (e) {
       console.error("Server error.", e);
     } finally {
@@ -70,7 +68,7 @@ export function DocumentsScreen() {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: colors.surface,
   },
   listContainer: {
     flex: 1,

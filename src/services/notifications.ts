@@ -1,3 +1,6 @@
+import { Platform } from "react-native";
+import { normalizeKeys } from "../utils";
+
 export type Notification = {
   Timestamp: string;
   UserID: string;
@@ -6,12 +9,16 @@ export type Notification = {
   DocumentTitle: string;
 };
 
-const WS_URL = process.env.EXPO_PUBLIC_WS_URL ?? "";
+const url = Platform.select({
+  ios: process.env.EXPO_PUBLIC_NOTIFICATIONS_WS_URL_IOS ?? "",
+  android: process.env.EXPO_PUBLIC_NOTIFICATIONS_WS_URL_ANDROID ?? "",
+  default: "",
+});
 
 export function connectNotifications(
   onNotification: (notification: Notification) => void,
 ) {
-  const socket = new WebSocket(WS_URL);
+  const socket = new WebSocket(url);
 
   socket.onopen = () => {
     console.log("WebSocket connected");
@@ -19,7 +26,9 @@ export function connectNotifications(
 
   socket.onmessage = (event) => {
     try {
-      const notification: Notification = JSON.parse(event.data);
+      const notification = normalizeKeys(
+        JSON.parse(event.data),
+      ) as Notification;
 
       console.log("Received notification:", notification);
 
