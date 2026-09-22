@@ -11,13 +11,17 @@ const GRID_MODE_COLUMNS_COUNT = 2;
 interface DocumentListProps {
   documents: Document[];
   viewMode: DocumentViewMode;
+  refreshing: boolean;
   onDocumentPress?: (document: Document) => void;
+  onRefresh?: () => void;
 }
 
 export function DocumentList({
   documents,
   viewMode,
+  refreshing,
   onDocumentPress,
+  onRefresh,
 }: DocumentListProps) {
   const { width } = useWindowDimensions();
 
@@ -55,6 +59,8 @@ export function DocumentList({
       showsVerticalScrollIndicator={false}
       numColumns={numColumns}
       columnWrapperStyle={columnWrapperStyle}
+      refreshing={refreshing}
+      onRefresh={onRefresh}
     />
   );
 }
