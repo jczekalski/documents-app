@@ -1,24 +1,17 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { Platform, StyleSheet, View } from "react-native";
 
 import { colors } from "../designSystem";
 
 import { normalizeKeys } from "@/utils";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { AddDocumentButton } from "../components/AddDocumentButton";
 import { DocumentList } from "../components/DocumentList";
 import { DocumentToolbar } from "../components/DocumentToolbar";
 import { Header } from "../components/Header";
 import { DocumentViewMode } from "../components/ViewToggle";
 import { Document } from "../types/document";
-
-interface DocumentsScreenProps {
-  documents: Document[];
-  notificationCount?: number;
-  onAddDocument: () => void;
-  onNotificationsPress?: () => void;
-  onDocumentPress?: (document: Document) => void;
-}
 
 export function DocumentsScreen() {
   const [viewMode, setViewMode] = useState<DocumentViewMode>("list");
@@ -34,6 +27,8 @@ export function DocumentsScreen() {
       const normalizedData = normalizeKeys(response.data) as Document[];
       console.log(JSON.stringify(normalizedData, null, 2));
       setDocuments(normalizedData);
+    } catch (e) {
+      console.error("Server error.", e);
     } finally {
       setRefreshing(false);
     }
@@ -43,10 +38,6 @@ export function DocumentsScreen() {
     fetchData();
   }, []);
 
-  if (documents.length === 0) {
-    return null;
-  }
-
   const onAddDocumentPress = () => {
     // TODO
   };
@@ -55,8 +46,11 @@ export function DocumentsScreen() {
     fetchData();
   };
 
+  // Issue: After creating default Expo project Android requires SafeAreaView, but iOS doesn't.
+  const ScreenContainer = Platform.OS === "android" ? SafeAreaView : View;
+
   return (
-    <View style={styles.screen}>
+    <ScreenContainer style={styles.screen}>
       <Header title="Documents" notificationCount={notificationCount} />
       <DocumentToolbar viewMode={viewMode} onViewModeChange={setViewMode} />
       <View style={styles.listContainer}>
@@ -69,7 +63,7 @@ export function DocumentsScreen() {
       </View>
 
       <AddDocumentButton onPress={onAddDocumentPress} />
-    </View>
+    </ScreenContainer>
   );
 }
 
