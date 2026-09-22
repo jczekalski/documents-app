@@ -25,7 +25,7 @@ export function DocumentsScreen({
   onNotificationsPress,
   onDocumentPress,
 }: DocumentsScreenProps) {
-  const [viewMode, setViewMode] = useState<DocumentViewMode>("list");
+  const [viewMode, setViewMode] = useState<DocumentViewMode>("grid");
 
   if (documents.length === 0) {
     return null;
@@ -42,7 +42,11 @@ export function DocumentsScreen({
       <DocumentToolbar viewMode={viewMode} onViewModeChange={setViewMode} />
 
       <View style={styles.listContainer}>
-        <DocumentList documents={documents} onDocumentPress={onDocumentPress} />
+        <DocumentList
+          documents={documents}
+          viewMode={viewMode}
+          onDocumentPress={onDocumentPress}
+        />
       </View>
 
       <AddDocumentButton onPress={onAddDocument} />

@@ -19,7 +19,7 @@ export function AddDocumentButton({ onPress }: AddDocumentButtonProps) {
   const insets = useSafeAreaInsets();
 
   // Add additional padding when no gap between button and bottom of screen
-  const containerPaddingBottom = insets.bottom === 0 ? 16 : 0;
+  const containerPaddingBottom = insets.bottom === 0 ? spacing.lg : 0;
 
   return (
     <View style={[styles.container, { paddingBottom: containerPaddingBottom }]}>

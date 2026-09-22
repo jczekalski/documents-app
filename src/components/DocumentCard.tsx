@@ -1,5 +1,12 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Pressable,
+  StyleProp,
+  StyleSheet,
+  Text,
+  View,
+  ViewStyle,
+} from "react-native";
 
 import {
   colors,
@@ -15,31 +22,41 @@ import { Document } from "../types/document";
 
 interface DocumentCardProps {
   document: Document;
+  compact?: boolean;
+  style?: StyleProp<ViewStyle>;
   onPress?: (document: Document) => void;
 }
 
-export function DocumentCard({ document, onPress }: DocumentCardProps) {
+export function DocumentCard({
+  document,
+  compact = false,
+  style,
+  onPress,
+}: DocumentCardProps) {
+  const titleRowFlexDirection = compact ? "column" : "row";
+
   return (
-    <Pressable onPress={() => onPress?.(document)} style={styles.card}>
-      <View style={styles.titleRow}>
+    <Pressable onPress={() => onPress?.(document)} style={[styles.card, style]}>
+      <View style={[styles.titleRow, { flexDirection: titleRowFlexDirection }]}>
         <Text numberOfLines={1} style={styles.title}>
           {document.title}
         </Text>
-
         <Text style={styles.version}>Version {document.version}</Text>
       </View>
-      <View style={styles.columns}>
-        <DocumentSection
-          icon="account-group-outline"
-          title="Contributors"
-          items={document.contributors.map((contributor) => contributor.name)}
-        />
-        <DocumentSection
-          icon="link-variant"
-          title="Attachments"
-          items={document.attachments}
-        />
-      </View>
+      {!compact && (
+        <View style={styles.columns}>
+          <DocumentSection
+            icon="account-group-outline"
+            title="Contributors"
+            items={document.contributors.map((contributor) => contributor.name)}
+          />
+          <DocumentSection
+            icon="link-variant"
+            title="Attachments"
+            items={document.attachments}
+          />
+        </View>
+      )}
     </Pressable>
   );
 }
