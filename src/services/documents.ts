@@ -1,16 +1,10 @@
 import axios from "axios";
-import { Platform } from "react-native";
 
 import { normalizeKeys } from "@/utils";
 import { Document } from "../types/document";
-
-const url = Platform.select({
-  ios: process.env.EXPO_PUBLIC_DOCUMENTS_URL_IOS ?? "",
-  android: process.env.EXPO_PUBLIC_DOCUMENTS_URL_ANDROID ?? "",
-  default: "",
-});
+import { backendUrl } from "./constants";
 
 export async function getDocuments() {
-  const response = await axios.get(url);
+  const response = await axios.get(`${backendUrl}/documents`);
   return normalizeKeys(response.data) as Document[];
 }

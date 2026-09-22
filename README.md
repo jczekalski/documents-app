@@ -1,56 +1,115 @@
-# Welcome to your Expo app 👋
+# Documents App
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+This repository was created as part of a recruitment task for a **Senior React Native Developer** position.
 
-## Get started
+It is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app). The application displays **documents and notifications** fetched from a simple Go server that generates random mock data.
 
-1. Install dependencies
+The server exposes two endpoints:
 
-   ```bash
-   npm install
-   ```
+- **Documents** — an HTTP endpoint that returns an array of randomly generated `Document` objects on each request.
+- **Notifications** — a WebSocket endpoint that continuously sends randomly generated notifications to connected clients.
 
-2. Start the app
+## Getting Started
 
-   ```bash
-   npx expo start
-   ```
+### Prerequisites
 
-In the output, you'll find options to open the app in a
+Make sure you have the following installed:
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- Node.js
+- npm
+- Expo development environment
+- Xcode and an iOS Simulator for iOS development
+- Android Studio and an Android Emulator for Android development
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### 1. Clone the server repository
 
-## Get a fresh project
+Clone the server repository into the same parent directory as this repository and rename the server directory to `documents-server`.
 
-When you're ready, run:
+The resulting directory structure should look like:
 
-```bash
-npm run reset-project
+```text
+parent-directory/
+├── documents-app/
+└── documents-server/
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 2. Start the server
 
-### Other setup steps
+Navigate to the application directory:
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+```bash
+cd documents-app
+```
 
-## Learn more
+Start the Go server:
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+npm run server
+```
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+### 3. Install application dependencies
 
-## Join the community
+In a separate terminal, install the application dependencies:
 
-Join our community of developers creating universal apps.
+```bash
+npm install
+```
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### 4. Configure the API URLs
+
+Create a `.env` file in the root of the `documents-app` directory:
+
+```env
+EXPO_PUBLIC_API_URL_IOS=http://localhost:8080
+EXPO_PUBLIC_API_URL_ANDROID=http://10.0.2.2:8080
+```
+
+Separate URLs are required because on an Android Emulator, `10.0.2.2` is used to access the host machine running the server.
+
+### 5. Run on iOS simulator
+
+Start the iOS development server:
+
+```bash
+npm run ios
+```
+
+### 6. Run on Android emulator
+
+In another terminal, run:
+
+```bash
+npm run android
+```
+
+Confirm that you want to use a different port.
+
+### Running Both Platforms
+
+When running both platforms simultaneously, you should have three active processes:
+
+1. **Go server** — serves the mock documents and notifications.
+2. **Metro/Expo server for iOS** — serves the iOS application.
+3. **Metro/Expo server for Android** — serves the Android application.
+
+Once all three are running, both the iOS and Android applications should be able to connect to the Go server and fetch/display data on launch.
+
+## Project Structure
+
+_More details about the project structure and architecture will be added here._
+
+## Implementation Notes
+
+_Details about the implementation, technical decisions, and trade-offs will be added here._
+
+## Development
+
+_Development commands and additional workflows will be documented here._
+
+## Testing
+
+_Testing strategy and instructions will be added here._
+
+## Known Limitations
+
+_Known limitations and potential improvements will be documented here._
