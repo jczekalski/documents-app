@@ -1,10 +1,14 @@
 import axios from "axios";
-import { useEffect } from "react";
-import { StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useEffect, useState } from "react";
 
-import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
-import { connectNotifications } from "@/notifications";
+import { DocumentsScreen } from "@/screens/DocumentsScreen";
+import { Document } from "@/types/document";
+import { normalizeKeys } from "@/utils";
+
+import { requireOptionalNativeModule } from "expo";
+
+const DevMenuPreferences = requireOptionalNativeModule("DevMenuPreferences");
+DevMenuPreferences?.setPreferencesAsync({ showFloatingActionButton: false });
 
 export const config = {
   apiUrl: process.env.EXPO_PUBLIC_API_URL!,
@@ -12,65 +16,24 @@ export const config = {
 };
 
 export default function HomeScreen() {
-  useEffect(() => {
-    axios
-      .get(config.apiUrl)
-      .then((r) => console.log(JSON.stringify(r.data.length, null, 2)));
-  }, []);
+  const [documents, setDocuments] = useState<Document[]>([]);
 
   useEffect(() => {
-    const disconnect = connectNotifications((notification) => {
-      console.log(
-        `${notification.UserName} created ${notification.DocumentTitle}`,
-      );
+    axios.get(config.apiUrl).then((r) => {
+      const normalizedData = normalizeKeys(r.data) as Document[];
+      console.log(JSON.stringify(normalizedData, null, 2));
+      setDocuments(normalizedData);
     });
-
-    return disconnect;
   }, []);
 
-  return (
-    <View style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.heroSection}>
-          <Text>Hello</Text>
-        </View>
-      </SafeAreaView>
-    </View>
-  );
-}
+  useEffect(() => {
+    // const disconnect = connectNotifications((notification) => {
+    //   console.log(
+    //     `${notification.UserName} created ${notification.DocumentTitle}`,
+    //   );
+    // });
+    // return disconnect;
+  }, []);
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    flexDirection: "row",
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: "center",
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
-  title: {
-    textAlign: "center",
-  },
-  code: {
-    textTransform: "uppercase",
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: "stretch",
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
-  },
-});
+  return <DocumentsScreen documents={documents} onAddDocument={() => {}} />;
+}
