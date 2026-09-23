@@ -3,7 +3,6 @@ import {
   BottomSheetBackdrop,
   BottomSheetModal,
   BottomSheetScrollView,
-  BottomSheetTextInput,
 } from "@gorhom/bottom-sheet";
 import { Asset } from "expo-asset";
 import * as Crypto from "expo-crypto";
@@ -16,21 +15,16 @@ import { BottomButton } from "@/components/base";
 import {
   colors,
   fontWeights,
-  iconSize,
   radius,
   spacing,
   typography,
 } from "@/constants/designSystem";
+import { AttachmentField } from "@/features/documents/components/AttachmentField";
+import { DocumentInfoFields } from "@/features/documents/components/DocumentInfoFields";
 import { Document } from "@/types/document";
 import { readAttachmentCsv } from "@/utils/attachmentsCsv";
 
 import attachmentsCsv from "../../../../assets/attachements-data.csv";
-
-export interface NewDocumentData {
-  title: string;
-  version: string;
-  file: DocumentPicker.DocumentPickerAsset | null;
-}
 
 async function readDevelopmentAttachmentCsv(): Promise<string[]> {
   const asset = Asset.fromModule(attachmentsCsv);
@@ -200,79 +194,20 @@ export const AddDocumentSheet = forwardRef<
         >
           <Text style={styles.sectionTitle}>Document information</Text>
 
-          <FormField label="Name">
-            <BottomSheetTextInput
-              value={title}
-              onChangeText={setTitle}
-              placeholder="Super Stout"
-              placeholderTextColor={colors.textMuted}
-              style={styles.input}
-              returnKeyType="next"
-              editable={!submitting}
-            />
-          </FormField>
+          <DocumentInfoFields
+            title={title}
+            version={version}
+            disabled={submitting}
+            onTitleChange={setTitle}
+            onVersionChange={setVersion}
+          />
 
-          <FormField label="Version">
-            <BottomSheetTextInput
-              value={version}
-              onChangeText={setVersion}
-              placeholder="Version 1.3.0"
-              placeholderTextColor={colors.textMuted}
-              style={styles.input}
-              returnKeyType="done"
-              editable={!submitting}
-            />
-          </FormField>
-
-          <View style={styles.field}>
-            <Text style={styles.label}>File</Text>
-
-            <Pressable
-              onPress={handlePickFile}
-              disabled={submitting}
-              style={({ pressed }) => [
-                styles.fileButton,
-                pressed && styles.pressed,
-              ]}
-            >
-              <MaterialCommunityIcons
-                name="file-document-outline"
-                size={iconSize.md}
-                color={colors.primary}
-              />
-              <Text style={styles.fileButtonText}>Choose CSV file</Text>
-            </Pressable>
-
-            {__DEV__ && !file && (
-              <Text style={styles.fileHint}>
-                Sample attachments from the bundled CSV will be used.
-              </Text>
-            )}
-
-            {file && (
-              <View style={styles.selectedFile}>
-                <MaterialCommunityIcons
-                  name="file-check-outline"
-                  size={20}
-                  color={colors.success}
-                />
-                <Text numberOfLines={1} style={styles.selectedFileText}>
-                  {file.name}
-                </Text>
-                <Pressable
-                  onPress={() => setFile(null)}
-                  disabled={submitting}
-                  hitSlop={8}
-                >
-                  <MaterialCommunityIcons
-                    name="close"
-                    size={18}
-                    color={colors.textSecondary}
-                  />
-                </Pressable>
-              </View>
-            )}
-          </View>
+          <AttachmentField
+            file={file}
+            disabled={submitting}
+            onPick={handlePickFile}
+            onRemove={() => setFile(null)}
+          />
 
           {error && <Text style={styles.error}>{error}</Text>}
         </BottomSheetScrollView>
@@ -287,20 +222,6 @@ export const AddDocumentSheet = forwardRef<
     </BottomSheetModal>
   );
 });
-
-interface FormFieldProps {
-  label: string;
-  children: React.ReactNode;
-}
-
-function FormField({ label, children }: FormFieldProps) {
-  return (
-    <View style={styles.field}>
-      <Text style={styles.label}>{label}</Text>
-      {children}
-    </View>
-  );
-}
 const styles = StyleSheet.create({
   background: {
     backgroundColor: colors.surface,
@@ -343,99 +264,11 @@ const styles = StyleSheet.create({
     lineHeight: typography.xl.lineHeight,
     fontWeight: fontWeights.semibold,
   },
-  field: {
-    marginBottom: spacing.xl,
-  },
-  label: {
-    marginBottom: spacing.sm,
-    color: colors.textPrimary,
-    fontSize: typography.md.fontSize,
-    lineHeight: typography.md.lineHeight,
-    fontWeight: fontWeights.semibold,
-  },
-  input: {
-    height: 64,
-    paddingHorizontal: spacing.lg,
-    backgroundColor: colors.surface,
-    borderWidth: 2,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    color: colors.textPrimary,
-    fontSize: typography.md.fontSize,
-    lineHeight: typography.md.lineHeight,
-  },
-  fileButton: {
-    height: 56,
-    alignSelf: "flex-start",
-    paddingHorizontal: spacing.lg,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.sm,
-    backgroundColor: colors.surface,
-    borderWidth: 2,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-  },
-  fileButtonText: {
-    color: colors.primary,
-    fontSize: typography.md.fontSize,
-    lineHeight: typography.md.lineHeight,
-    fontWeight: fontWeights.medium,
-  },
-  fileHint: {
-    marginTop: spacing.sm,
-    color: colors.textSecondary,
-    fontSize: typography.sm.fontSize,
-    lineHeight: typography.sm.lineHeight,
-  },
-  selectedFile: {
-    marginTop: spacing.md,
-    minHeight: 44,
-    paddingHorizontal: spacing.md,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: spacing.sm,
-    backgroundColor: colors.surfaceAlt,
-    borderRadius: radius.md,
-  },
-  selectedFileText: {
-    flex: 1,
-    color: colors.textSecondary,
-    fontSize: typography.sm.fontSize,
-    lineHeight: typography.sm.lineHeight,
-  },
   error: {
     marginBottom: spacing.md,
     color: colors.error,
     fontSize: typography.sm.fontSize,
     lineHeight: typography.sm.lineHeight,
     fontWeight: fontWeights.medium,
-  },
-  footer: {
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.lg,
-    backgroundColor: colors.surface,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: colors.border,
-  },
-  submitButton: {
-    height: 64,
-    borderRadius: radius.lg,
-    backgroundColor: colors.primary,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  submitPressed: {
-    backgroundColor: colors.primaryPressed,
-  },
-  submitDisabled: {
-    opacity: 0.7,
-  },
-  submitText: {
-    color: colors.textOnPrimary,
-    fontSize: typography.xl.fontSize,
-    lineHeight: typography.xl.lineHeight,
-    fontWeight: fontWeights.semibold,
   },
 });
