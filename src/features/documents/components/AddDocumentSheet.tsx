@@ -128,7 +128,7 @@ export const AddDocumentSheet = forwardRef<
     } finally {
       setSubmitting(false);
     }
-  }, [title, version, file, onSubmit, resetForm, ref]);
+  }, [title, version, onSubmit, resetForm, ref]);
 
   return (
     <BottomSheetModal

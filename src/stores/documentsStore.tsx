@@ -33,13 +33,12 @@ export function DocumentsProvider({ children }: DocumentsProviderProps) {
   const [error, setError] = useState<Error | null>(null);
 
   const loadDocuments = useCallback(async () => {
+    setLoading(true);
+
     try {
-      setLoading(true);
-      setError(null);
-
       const documents = await getDocuments();
-
       setDocuments(documents);
+      setError(null);
     } catch (error) {
       setError(
         error instanceof Error ? error : new Error("Failed to fetch documents"),
@@ -54,8 +53,39 @@ export function DocumentsProvider({ children }: DocumentsProviderProps) {
   }, []);
 
   useEffect(() => {
-    loadDocuments();
-  }, [loadDocuments]);
+    // A request can finish after this effect is cleaned up (for example, when
+    // the provider unmounts or Strict Mode re-runs the effect). Ignore results
+    // from that stale request so they cannot update state afterward.
+    let isActive = true;
+
+    async function load() {
+      try {
+        const documents = await getDocuments();
+        if (!isActive) return;
+
+        setDocuments(documents);
+        setError(null);
+      } catch (error) {
+        if (!isActive) return;
+
+        setError(
+          error instanceof Error
+            ? error
+            : new Error("Failed to fetch documents"),
+        );
+      } finally {
+        if (isActive) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void load();
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
 
   const value = useMemo(
     () => ({

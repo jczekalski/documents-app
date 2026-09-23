@@ -45,28 +45,27 @@ export function NotificationsProvider({
 
     processingRef.current = true;
 
-    const notification = queueRef.current.shift();
+    while (queueRef.current.length > 0) {
+      const notification = queueRef.current.shift();
 
-    if (!notification) {
-      processingRef.current = false;
-      return;
+      if (!notification) {
+        continue;
+      }
+
+      Toast.show({
+        type: "success",
+        text1: notification.documentTitle,
+        text2: `${notification.userName} created ${notification.documentTitle}.`,
+        visibilityTime: TOAST_DURATION,
+        position: "top",
+      });
+
+      await new Promise((resolve) => {
+        setTimeout(resolve, NOTIFICATION_DELAY);
+      });
     }
 
-    Toast.show({
-      type: "success",
-      text1: notification.documentTitle,
-      text2: `${notification.userName} created ${notification.documentTitle}.`,
-      visibilityTime: TOAST_DURATION,
-      position: "top",
-    });
-
-    await new Promise((resolve) => {
-      setTimeout(resolve, NOTIFICATION_DELAY);
-    });
-
     processingRef.current = false;
-
-    processQueue();
   }, []);
 
   const addNotification = useCallback(
