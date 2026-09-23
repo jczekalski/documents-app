@@ -102,7 +102,7 @@ The app keeps route entry points in `src/app/` and organizes the document experi
 
 ### Required features
 
-- **Most recent documents in list or grid view — Completed.** Documents are sorted by `updatedAt` and shown with a native `FlatList`; the view toggle switches between one column and a two-column grid. The number of columns can also be modified easily be updating the GRID_MODE_COLUMNS_COUNT variable. `FlatList` provides efficient rendering for simple mobile lists and built-in pull-to-refresh support.
+- **Most recent documents in list or grid view — Completed.** Documents are shown with using the `FlatList` component; the view toggle switches between one column and a two-column grid. The number of columns can also be easily modified be updating the `GRID_MODE_COLUMNS_COUNT` variable. The sort selector supports sorting by newest date, oldest date, or title order.
 - **Real-time notifications for documents created by other users — Completed.** A WebSocket connection receives notification events and displays them as queued in-app toast messages. The WebSocket keeps updates live without polling, and the queue logic spaces out toasts so the user is not spammed with notifications.
 - **Create a document — Completed in the app.** The add-document sheet collects a name, version, and attachment CSV, parses attachment names, then adds the new document to the current app state. In development, a bundled CSV supplies sample attachments when no file is selected. The current client adds documents locally; the server API used by this app does not expose a create endpoint for persistence.
 

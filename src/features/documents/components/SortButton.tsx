@@ -30,6 +30,7 @@ export function SortButton({ label = "Sort by", onPress }: SortButtonProps) {
           color={colors.textSecondary}
         />
         <Text style={styles.label}>{label}</Text>
+        <View style={styles.divider} />
         <MaterialCommunityIcons
           name="chevron-down"
           size={ICON_SIZE}
@@ -44,13 +45,14 @@ const styles = StyleSheet.create({
   container: {
     height: 40,
     justifyContent: "center",
-    paddingHorizontal: spacing.md,
+    paddingHorizontal: spacing.sm,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
     borderRadius: radius.lg,
   },
   content: {
+    height: "100%",
     flexDirection: "row",
     alignItems: "center",
     gap: spacing.sm,
@@ -63,5 +65,10 @@ const styles = StyleSheet.create({
   },
   pressed: {
     backgroundColor: colors.surfaceAlt,
+  },
+  divider: {
+    height: "100%",
+    width: 1,
+    backgroundColor: colors.border,
   },
 });
