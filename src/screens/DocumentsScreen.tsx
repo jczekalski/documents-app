@@ -1,11 +1,13 @@
-import { useEffect, useState } from "react";
-import { Platform, StyleSheet, View } from "react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { StyleSheet, View } from "react-native";
 
 import { colors } from "../designSystem";
 
+import { AddDocumentSheet } from "@/components/AddDocumentSheet";
+import { BottomButton } from "@/components/BottomButton";
 import { getDocuments } from "@/services/documents";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { AddDocumentButton } from "../components/AddDocumentButton";
 import { DocumentList } from "../components/DocumentList";
 import { DocumentToolbar } from "../components/DocumentToolbar";
 import { Header } from "../components/Header";
@@ -16,6 +18,8 @@ export function DocumentsScreen() {
   const [viewMode, setViewMode] = useState<DocumentViewMode>("list");
   const [refreshing, setRefreshing] = useState(false);
   const [documents, setDocuments] = useState<Document[]>([]);
+
+  const addDocumentSheetRef = useRef<BottomSheetModal>(null);
 
   const notificationCount = 0;
 
@@ -36,19 +40,21 @@ export function DocumentsScreen() {
     fetchData();
   }, []);
 
-  const onAddDocumentPress = () => {
-    // TODO
-  };
-
-  const onRefresh = () => {
+  const refetchData = () => {
     fetchData();
   };
 
-  // Issue: After creating default Expo project Android requires SafeAreaView, but iOS doesn't.
-  const ScreenContainer = Platform.OS === "android" ? SafeAreaView : View;
+  const openAddDocumentSheet = useCallback(() => {
+    addDocumentSheetRef.current?.present();
+  }, []);
+
+  // Note: Stores data locally, since using a database is not allowed in this task
+  const handleCreateDocument = (data: Document) => {
+    setDocuments((current) => [data, ...current]);
+  };
 
   return (
-    <ScreenContainer style={styles.screen}>
+    <SafeAreaView style={styles.screen}>
       <Header title="Documents" notificationCount={notificationCount} />
       <DocumentToolbar viewMode={viewMode} onViewModeChange={setViewMode} />
       <View style={styles.listContainer}>
@@ -56,12 +62,19 @@ export function DocumentsScreen() {
           documents={documents}
           viewMode={viewMode}
           refreshing={refreshing}
-          onRefresh={onRefresh}
+          onRefresh={refetchData}
         />
       </View>
-
-      <AddDocumentButton onPress={onAddDocumentPress} />
-    </ScreenContainer>
+      <BottomButton
+        label="Add document"
+        icon="plus"
+        onPress={openAddDocumentSheet}
+      />
+      <AddDocumentSheet
+        ref={addDocumentSheetRef}
+        onSubmit={handleCreateDocument}
+      />
+    </SafeAreaView>
   );
 }
 
