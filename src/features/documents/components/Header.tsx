@@ -8,7 +8,7 @@ import {
   radius,
   spacing,
   typography,
-} from "../designSystem";
+} from "@/constants/designSystem";
 
 interface HeaderProps {
   title: string;

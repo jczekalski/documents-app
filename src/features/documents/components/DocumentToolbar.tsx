@@ -1,6 +1,6 @@
 import { StyleSheet, View } from "react-native";
 
-import { spacing } from "../designSystem";
+import { spacing } from "@/constants/designSystem";
 import { SortButton } from "./SortButton";
 import { DocumentViewMode, ViewToggle } from "./ViewToggle";
 

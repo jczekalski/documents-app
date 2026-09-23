@@ -1,7 +1,7 @@
 import { StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { colors, spacing } from "@/designSystem";
+import { colors, spacing } from "@/constants/designSystem";
 import { Button, ButtonProps } from "./Button";
 
 export function BottomButton(props: ButtonProps) {

@@ -19,8 +19,8 @@ import {
   radius,
   spacing,
   typography,
-} from "../designSystem";
-import { BottomButton } from "./BottomButton";
+} from "@/constants/designSystem";
+import { BottomButton } from "@/components/base";
 
 export interface NewDocumentData {
   title: string;

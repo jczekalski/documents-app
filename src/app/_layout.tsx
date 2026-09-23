@@ -3,7 +3,7 @@ import { Stack } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Toast from "react-native-toast-message";
 
-import { spacing } from "@/designSystem";
+import { spacing } from "@/constants/designSystem";
 import { DocumentsProvider } from "@/stores/documentsStore";
 import { NotificationsProvider } from "@/stores/notificationsStore";
 import { useSafeAreaInsets } from "react-native-safe-area-context";

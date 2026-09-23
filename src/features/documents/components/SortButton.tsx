@@ -8,7 +8,7 @@ import {
   radius,
   spacing,
   typography,
-} from "../designSystem";
+} from "@/constants/designSystem";
 
 const ICON_SIZE = iconSize.sm;
 

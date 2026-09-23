@@ -1,18 +1,20 @@
 import { useCallback, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
 
-import { colors } from "../designSystem";
+import { colors } from "@/constants/designSystem";
 
-import { AddDocumentSheet } from "@/components/AddDocumentSheet";
-import { BottomButton } from "@/components/BottomButton";
+import { BottomButton } from "@/components/base";
 import { useDocuments } from "@/stores/documentsStore";
 import { useNotifications } from "@/stores/notificationsStore";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { DocumentList } from "../components/DocumentList";
-import { DocumentToolbar } from "../components/DocumentToolbar";
-import { Header } from "../components/Header";
-import { DocumentViewMode } from "../components/ViewToggle";
+import {
+  AddDocumentSheet,
+  DocumentList,
+  DocumentToolbar,
+  Header,
+  type DocumentViewMode,
+} from "./components";
 
 export function DocumentsScreen() {
   const [viewMode, setViewMode] = useState<DocumentViewMode>("list");
@@ -52,11 +54,7 @@ export function DocumentsScreen() {
         icon="plus"
         onPress={openAddDocumentSheet}
       />
-      <AddDocumentSheet
-        ref={addDocumentSheetRef}
-        // Note: Stores data locally, since using a database is not allowed in this task
-        onSubmit={addDocument}
-      />
+      <AddDocumentSheet ref={addDocumentSheetRef} onSubmit={addDocument} />
     </SafeAreaView>
   );
 }

@@ -1,7 +1,7 @@
 import { FlatList, StyleSheet, useWindowDimensions } from "react-native";
 
-import { spacing } from "../designSystem";
-import { Document } from "../types/document";
+import { spacing } from "@/constants/designSystem";
+import { Document } from "@/types/document";
 import { DocumentCard } from "./DocumentCard";
 import { DocumentViewMode } from "./ViewToggle";
 

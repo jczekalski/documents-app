@@ -16,9 +16,9 @@ import {
   shadows,
   spacing,
   typography,
-} from "../designSystem";
+} from "@/constants/designSystem";
 
-import { Document } from "../types/document";
+import { Document } from "@/types/document";
 
 interface DocumentCardProps {
   document: Document;

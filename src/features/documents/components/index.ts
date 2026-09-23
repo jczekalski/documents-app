@@ -1,4 +1,4 @@
-export { AddDocumentButton } from "./AddDocumentButton";
+export { AddDocumentSheet } from "./AddDocumentSheet";
 export { DocumentCard } from "./DocumentCard";
 export { DocumentList } from "./DocumentList";
 export { DocumentToolbar } from "./DocumentToolbar";

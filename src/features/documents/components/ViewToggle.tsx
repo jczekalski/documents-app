@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Pressable, StyleSheet, View } from "react-native";
 
-import { colors, iconSize, radius } from "../designSystem";
+import { colors, iconSize, radius } from "@/constants/designSystem";
 
 export type DocumentViewMode = "list" | "grid";
 
