@@ -21,8 +21,7 @@ import {
   spacing,
   typography,
 } from "@/constants/designSystem";
-
-import { Document } from "@/types/document";
+import type { Document } from "@/schemas/document";
 
 function formatRelativeDate(value: string): string {
   const date = new Date(value);

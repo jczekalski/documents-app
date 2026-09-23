@@ -114,6 +114,7 @@ These dependencies are used directly by the app:
 - **`expo-sqlite`** — Its `kv-store` persists documents and notifications locally while remaining compatible with Expo Go.
 - **`expo-sharing`** — Opens the native share sheet for a temporary JSON export of a document.
 - **`react-native-safe-area-context`** — Applies device safe-area insets consistently to sheet and screen controls.
+- **`zod`** — Validates documents and notifications received from the server at runtime and provides inferred TypeScript types.
 - **`react-native-toast-message`** — Displays incoming WebSocket notifications without building a custom toast UI.
 
 ## Features

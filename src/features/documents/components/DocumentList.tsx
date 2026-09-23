@@ -2,7 +2,7 @@ import { FlatList, StyleSheet, useWindowDimensions } from "react-native";
 import Animated, { FadeInDown, FadeOutUp } from "react-native-reanimated";
 
 import { spacing } from "@/constants/designSystem";
-import { Document } from "@/types/document";
+import type { Document } from "@/schemas/document";
 import { DocumentCard } from "./DocumentCard";
 import { DocumentViewMode } from "./ViewToggle";
 

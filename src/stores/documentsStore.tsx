@@ -8,9 +8,9 @@ import {
   type ReactNode,
 } from "react";
 
+import type { Document } from "@/schemas/document";
 import { getDocuments } from "@/services/documents";
 import { readStoredArray, storeArray } from "@/services/localStorage";
-import { Document } from "@/types/document";
 
 const DOCUMENTS_STORAGE_KEY = "documents";
 

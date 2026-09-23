@@ -21,7 +21,7 @@ import {
 } from "@/constants/designSystem";
 import { AttachmentField } from "@/features/documents/components/AttachmentField";
 import { DocumentInfoFields } from "@/features/documents/components/DocumentInfoFields";
-import { Document } from "@/types/document";
+import type { Document } from "@/schemas/document";
 import { readAttachmentCsv } from "@/utils/attachmentsCsv";
 
 import attachmentsCsv from "../../../../assets/attachements-data.csv";

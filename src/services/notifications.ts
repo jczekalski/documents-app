@@ -1,4 +1,4 @@
-import { Notification } from "@/types/notification";
+import { NotificationSchema, type Notification } from "@/schemas/notification";
 
 import { normalizeKeys } from "../utils/normalizeKeys";
 import { backendUrl } from "./constants";
@@ -51,9 +51,9 @@ export function connectNotifications(
 
       socket.onmessage = (event) => {
         try {
-          const notification = normalizeKeys(
-            JSON.parse(event.data),
-          ) as Notification;
+          const notification = NotificationSchema.parse(
+            normalizeKeys(JSON.parse(event.data)),
+          );
 
           onNotification(notification);
         } catch (error) {

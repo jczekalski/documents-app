@@ -7,7 +7,7 @@ import { CelebrationAnimation } from "@/components/animations/CelebrationAnimati
 import { BottomButton } from "@/components/base";
 import { useDocuments } from "@/stores/documentsStore";
 import { useNotifications } from "@/stores/notificationsStore";
-import type { Document } from "@/types/document";
+import type { Document } from "@/schemas/document";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {

@@ -10,12 +10,12 @@ import {
 } from "react";
 import Toast from "react-native-toast-message";
 
+import type { Notification } from "@/schemas/notification";
 import { readStoredArray, storeArray } from "@/services/localStorage";
 import {
   connectNotifications,
   type NotificationConnectionStatus,
 } from "@/services/notifications";
-import { Notification } from "@/types/notification";
 
 const NOTIFICATIONS_STORAGE_KEY = "notifications";
 
