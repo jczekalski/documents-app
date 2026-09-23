@@ -9,7 +9,10 @@ import {
 } from "react";
 
 import { getDocuments } from "@/services/documents";
+import { readStoredArray, storeArray } from "@/services/localStorage";
 import { Document } from "@/types/document";
+
+const DOCUMENTS_STORAGE_KEY = "documents";
 
 interface DocumentsContextValue {
   documents: Document[];
@@ -28,7 +31,9 @@ interface DocumentsProviderProps {
 }
 
 export function DocumentsProvider({ children }: DocumentsProviderProps) {
-  const [documents, setDocuments] = useState<Document[]>([]);
+  const [documents, setDocuments] = useState<Document[]>(() =>
+    readStoredArray<Document>(DOCUMENTS_STORAGE_KEY),
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -51,6 +56,10 @@ export function DocumentsProvider({ children }: DocumentsProviderProps) {
   const addDocument = useCallback((document: Document) => {
     setDocuments((currentDocuments) => [...currentDocuments, document]);
   }, []);
+
+  useEffect(() => {
+    storeArray(DOCUMENTS_STORAGE_KEY, documents);
+  }, [documents]);
 
   useEffect(() => {
     // A request can finish after this effect is cleaned up (for example, when

@@ -2,7 +2,7 @@
 
 This repository was created as part of a recruitment task for a **Senior React Native Developer** position.
 
-It is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app). The application displays **documents and notifications** fetched from a simple Go server that generates random mock data. I chose Expo Go because it provides the fastest way to set up a small project like this while also providing all of the advantages of the Expo ecosystem.
+It is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app). The application displays **documents and notifications** fetched from a simple Go server that generates random mock data.
 
 The server exposes two endpoints:
 
@@ -108,7 +108,7 @@ The app keeps route entry points in `src/app/` and organizes the document experi
 
 ### Optional features
 
-- **Offline support — NOT COMPLETED.** Documents are fetched from the server, and there is no local persistence or offline request queue.
+- **Basic offline support — Completed.** Intentionally simple: each provider restores its data array from `expo-sqlite/kv-store` at startup and saves it whenever state changes. To try it, run the app with the Go server and wait for documents to load, stop the server, then restart the app. The cached state should load and the app should remain usable offline. Start the Go server again and relaunch the app to fetch fresh documents. A much better production solution would be to use an offline-first architecture or a database with offline synchronization; resolving conflicts and syncing changes manually is difficult and error-prone.
 - **Local notifications — NOT COMPLETED.** Since native local notifications are unsupported in Expo Go on the simulator, the app currently shows in-app toasts while connected to the WebSocket.
 - **Pull to refresh — Completed.** Useful for testing, the app will fetch a new array of documents on each pull.
 - **Native share button — NOT COMPLETED.**

@@ -11,7 +11,10 @@ import {
 import Toast from "react-native-toast-message";
 
 import { connectNotifications } from "@/services/notifications";
+import { readStoredArray, storeArray } from "@/services/localStorage";
 import { Notification } from "@/types/notification";
+
+const NOTIFICATIONS_STORAGE_KEY = "notifications";
 
 interface NotificationsContextValue {
   notifications: Notification[];
@@ -34,7 +37,9 @@ const NOTIFICATION_DELAY = TOAST_DURATION + 3000;
 export function NotificationsProvider({
   children,
 }: NotificationsProviderProps) {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>(() =>
+    readStoredArray<Notification>(NOTIFICATIONS_STORAGE_KEY),
+  );
   const queueRef = useRef<Notification[]>([]);
   const processingRef = useRef(false);
 
@@ -77,6 +82,10 @@ export function NotificationsProvider({
     },
     [processQueue],
   );
+
+  useEffect(() => {
+    storeArray(NOTIFICATIONS_STORAGE_KEY, notifications);
+  }, [notifications]);
 
   useEffect(() => {
     const disconnect = connectNotifications(addNotification);
