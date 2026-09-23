@@ -96,11 +96,23 @@ Once all three are running, both the iOS and Android applications should be able
 
 ## Project Structure
 
-_More details about the project structure and architecture will be added here._
+The app keeps route entry points in `src/app/` and organizes the document experience under `src/features/documents/`. Shared UI lives in `src/components/`, while API access, app state, and pure helpers are grouped in `src/services/`, `src/stores/`, and `src/utils/` respectively.
 
-## Implementation Notes
+## Features
 
-_Details about the implementation, technical decisions, and trade-offs will be added here._
+### Required features
+
+- **Most recent documents in list or grid view — Completed.** Documents are sorted by `updatedAt` and shown with a native `FlatList`; the view toggle switches between one column and a two-column grid. The number of columns can also be modified easily be updating the GRID_MODE_COLUMNS_COUNT variable. `FlatList` provides efficient rendering for simple mobile lists and built-in pull-to-refresh support.
+- **Real-time notifications for documents created by other users — Completed.** A WebSocket connection receives notification events and displays them as queued in-app toast messages. The WebSocket keeps updates live without polling, and the queue logic spaces out toasts so the user is not spammed with notifications.
+- **Create a document — Completed in the app.** The add-document sheet collects a name, version, and attachment CSV, parses attachment names, then adds the new document to the current app state. In development, a bundled CSV supplies sample attachments when no file is selected. The current client adds documents locally; the server API used by this app does not expose a create endpoint for persistence.
+
+### Optional features
+
+- **Offline support — NOT COMPLETED.** Documents are fetched from the server, and there is no local persistence or offline request queue.
+- **Local notifications — NOT COMPLETED.** Since native local notifications are unsupported in Expo Go on the simulator, the app currently shows in-app toasts while connected to the WebSocket.
+- **Pull to refresh — Completed.** Useful for testing, the app will fetch a new array of documents on each pull.
+- **Native share button — NOT COMPLETED.**
+- **Relative dates — NOT COMPLETED.**
 
 ## Development
 
@@ -116,8 +128,14 @@ You can run the checks directly with `npm run lint`, `npm run typecheck`.
 
 ## Testing
 
-_Testing strategy and instructions will be added here._
+Run the unit tests with:
+
+```bash
+npm test -- --runInBand
+```
+
+The tests cover utility behavior such as recursive key normalization and attachment CSV parsing.
 
 ## Known Limitations
 
-_Known limitations and potential improvements will be documented here._
+The mock server returns randomly generated documents on each request. New documents created in the app are added to client state and are not persisted by the server. See [Features](#features) for more detailed information on how each feature was implemented.
