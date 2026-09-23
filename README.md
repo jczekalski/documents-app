@@ -109,7 +109,7 @@ The app keeps route entry points in `src/app/` and organizes the document experi
 ### Optional features
 
 - **Basic offline support — Completed.** Intentionally simple: each provider restores its data array from `expo-sqlite/kv-store` at startup and saves it whenever state changes. To try it, run the app with the Go server and wait for documents to load, stop the server, then restart the app. The cached state should load and the app should remain usable offline. Start the Go server again and relaunch the app to fetch fresh documents. A much better production solution would be to use an offline-first architecture or a database with offline synchronization; resolving conflicts and syncing changes manually is difficult and error-prone.
-- **Local notifications — NOT COMPLETED.** Since native local notifications are unsupported in Expo Go on the simulator, the app currently shows in-app toasts while connected to the WebSocket.
+- **Local notifications — Not completed.** New document events currently appear as in-app toasts while the WebSocket is connected. The app does not schedule native local notifications since Expo Go does not support notifications on the simulator. However, at this point swapping out the toast approach for scheduling local notifications would be simple and would only require some additional setup handling platform permission and notification configuration on each platform.
 - **Pull to refresh — Completed.** Useful for testing, the app will fetch a new array of documents on each pull.
 - **Native share button — NOT COMPLETED.**
 - **Relative dates — Completed.** Document cards show created and updated timestamps as relative labels, formatted with `date-fns` (for example, “Created 1 day ago”).
