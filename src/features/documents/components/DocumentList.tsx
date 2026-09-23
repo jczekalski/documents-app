@@ -1,4 +1,5 @@
 import { FlatList, StyleSheet, useWindowDimensions } from "react-native";
+import Animated, { FadeInDown, FadeOutUp } from "react-native-reanimated";
 
 import { spacing } from "@/constants/designSystem";
 import { Document } from "@/types/document";
@@ -7,6 +8,10 @@ import { DocumentViewMode } from "./ViewToggle";
 
 const PADDING_BETWEEN_ITEMS = spacing.lg;
 const GRID_MODE_COLUMNS_COUNT = 2;
+const CARD_ENTER_STAGGER_INTERVAL_MS = 25;
+const CARD_ENTER_STAGGER_MAX_INDEX = 6;
+const CARD_ENTER_DURATION_MS = 220;
+const CARD_EXIT_DURATION_MS = 120;
 
 interface DocumentListProps {
   documents: Document[];
@@ -48,13 +53,23 @@ export function DocumentList({
       key={viewMode}
       keyExtractor={(item) => item.id}
       contentContainerStyle={styles.content}
-      renderItem={({ item }) => (
-        <DocumentCard
-          document={item}
-          compact={gridModeEnabled}
-          style={cardStyle}
-          onPress={onDocumentPress}
-        />
+      renderItem={({ item, index }) => (
+        // The FlatList remounts when view mode changes. Animate each card
+        // into the new layout with a short stagger.
+        <Animated.View
+          entering={FadeInDown.delay(
+            Math.min(index, CARD_ENTER_STAGGER_MAX_INDEX) *
+              CARD_ENTER_STAGGER_INTERVAL_MS,
+          ).duration(CARD_ENTER_DURATION_MS)}
+          exiting={FadeOutUp.duration(CARD_EXIT_DURATION_MS)}
+        >
+          <DocumentCard
+            document={item}
+            compact={gridModeEnabled}
+            style={cardStyle}
+            onPress={onDocumentPress}
+          />
+        </Animated.View>
       )}
       showsVerticalScrollIndicator={false}
       numColumns={numColumns}

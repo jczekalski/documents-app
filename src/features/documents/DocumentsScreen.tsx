@@ -3,6 +3,7 @@ import { StyleSheet, View } from "react-native";
 
 import { colors } from "@/constants/designSystem";
 
+import { CelebrationAnimation } from "@/components/animations/CelebrationAnimation";
 import { BottomButton } from "@/components/base";
 import { useDocuments } from "@/stores/documentsStore";
 import { useNotifications } from "@/stores/notificationsStore";
@@ -44,6 +45,7 @@ export function DocumentsScreen() {
   const [viewMode, setViewMode] = useState<DocumentViewMode>("list");
   const [sortOption, setSortOption] =
     useState<DocumentSortOption>("dateNewest");
+  const [celebrationId, setCelebrationId] = useState(0);
 
   const addDocumentSheetRef = useRef<BottomSheetModal>(null);
 
@@ -63,6 +65,14 @@ export function DocumentsScreen() {
   const openAddDocumentSheet = useCallback(() => {
     addDocumentSheetRef.current?.present();
   }, []);
+
+  const handleAddDocument = useCallback(
+    async (document: Document) => {
+      addDocument(document);
+      setCelebrationId((id) => id + 1);
+    },
+    [addDocument],
+  );
 
   return (
     <SafeAreaView style={styles.screen}>
@@ -86,7 +96,16 @@ export function DocumentsScreen() {
         icon="plus"
         onPress={openAddDocumentSheet}
       />
-      <AddDocumentSheet ref={addDocumentSheetRef} onSubmit={addDocument} />
+      <AddDocumentSheet
+        ref={addDocumentSheetRef}
+        onSubmit={handleAddDocument}
+      />
+      {celebrationId > 0 && (
+        <CelebrationAnimation
+          key={celebrationId}
+          onComplete={() => setCelebrationId(0)}
+        />
+      )}
     </SafeAreaView>
   );
 }
