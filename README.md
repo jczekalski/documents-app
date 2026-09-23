@@ -132,6 +132,11 @@ These dependencies are used directly by the app:
 - **Native share button — Completed.** Each document card shares a JSON file with the document data through the platform share sheet.
 - **Relative dates — Completed.** Document cards show created and updated timestamps as relative labels, formatted with `date-fns` (for example, “Created 1 day ago”).
 
+### Bonus features
+
+- **Animated list/grid transition.** Switching document views remounts the `FlatList` with the new column count. Cards fade and move into the new layout with a short stagger.
+- **Document creation celebration.** After a document is added successfully, a brief burst of emoji confetti flies outward above the Add button and fades away. The reusable `CelebrationAnimation` component lives in `src/components/animations/` and uses Reanimated for UI-thread animations.
+
 ## Development
 
 The pre-commit hook runs ESLint, TypeScript, and Jest checks before each commit.
