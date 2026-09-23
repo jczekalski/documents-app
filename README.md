@@ -104,7 +104,15 @@ _Details about the implementation, technical decisions, and trade-offs will be a
 
 ## Development
 
-_Development commands and additional workflows will be documented here._
+The pre-commit hook runs ESLint, TypeScript, and Jest checks before each commit.
+It is installed automatically when dependencies are installed with `npm install`.
+To install it manually, run:
+
+```bash
+npm run prepare
+```
+
+You can run the checks directly with `npm run lint`, `npm run typecheck`.
 
 ## Testing
 
