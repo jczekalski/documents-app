@@ -98,6 +98,24 @@ Once all three are running, both the iOS and Android applications should be able
 
 The app keeps route entry points in `src/app/` and organizes the document experience under `src/features/documents/`. Shared UI lives in `src/components/`, while API access, app state, and pure helpers are grouped in `src/services/`, `src/stores/`, and `src/utils/` respectively.
 
+## Dependencies
+
+These dependencies are used directly by the app:
+
+- **`@expo/vector-icons`** — Provides a consistent set of native-friendly icons without maintaining custom image assets.
+- **`@gorhom/bottom-sheet`** — Supplies the add-document sheet and keyboard-aware inputs, avoiding custom gesture and sheet behavior. It's the most widely used and reliable bottom sheet library, [recommended by the Reanimated team](https://docs.swmansion.com/react-native-reanimated/examples/bottomsheet/).
+- **`axios`** — Handles the app’s HTTP requests with a consistent promise-based API and response errors.
+- **`date-fns`** — Used for formatting relative timestamps.
+- **`expo-asset`** — Resolves the bundled sample CSV attachments asset across iOS and Android.
+- **`expo-crypto`** — Generates document IDs with a cross-platform random UUID implementation.
+- **`expo-document-picker`** — Opens the platform file picker for selecting an attachment CSV.
+- **`expo-file-system`** — Used for processing CSV files and creates a .json file when sharing documents.
+- **`expo-router`** — Provides Expo’s file-based navigation. In this case the app contains only one screen.
+- **`expo-sqlite`** — Its `kv-store` persists documents and notifications locally while remaining compatible with Expo Go.
+- **`expo-sharing`** — Opens the native share sheet for a temporary JSON export of a document.
+- **`react-native-safe-area-context`** — Applies device safe-area insets consistently to sheet and screen controls.
+- **`react-native-toast-message`** — Displays incoming WebSocket notifications without building a custom toast UI.
+
 ## Features
 
 ### Required features
@@ -111,7 +129,7 @@ The app keeps route entry points in `src/app/` and organizes the document experi
 - **Basic offline support — Completed.** Intentionally simple: each provider restores its data array from `expo-sqlite/kv-store` at startup and saves it whenever state changes. To try it, run the app with the Go server and wait for documents to load, stop the server, then restart the app. The cached state should load and the app should remain usable offline. Start the Go server again and relaunch the app to fetch fresh documents. A much better production solution would be to use an offline-first architecture or a database with offline synchronization; resolving conflicts and syncing changes manually is difficult and error-prone.
 - **Local notifications — Not completed.** New document events currently appear as in-app toasts while the WebSocket is connected. The app does not schedule native local notifications since Expo Go does not support notifications on the simulator. However, at this point swapping out the toast approach for scheduling local notifications would be simple and would only require some additional setup handling platform permission and notification configuration on each platform.
 - **Pull to refresh — Completed.** Useful for testing, the app will fetch a new array of documents on each pull.
-- **Native share button — NOT COMPLETED.**
+- **Native share button — Completed.** Each document card shares a JSON file with the document data through the platform share sheet.
 - **Relative dates — Completed.** Document cards show created and updated timestamps as relative labels, formatted with `date-fns` (for example, “Created 1 day ago”).
 
 ## Development
