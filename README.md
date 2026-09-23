@@ -137,27 +137,30 @@ These dependencies are used directly by the app:
 - **Animated list/grid transition.** Switching document views remounts the `FlatList` with the new column count. Cards fade and move into the new layout with a short stagger.
 - **Document creation celebration.** After a document is added successfully, a brief burst of emoji confetti flies outward above the Add button and fades away. The reusable `CelebrationAnimation` component lives in `src/components/animations/` and uses Reanimated for UI-thread animations.
 
+## AI usage
+
+Did I use AI? Of course! I started by sharing the sample images with ChatGPT and asking it to draft a design-system file with colors, spacing, and typography. I also asked for a set of basic components. Since this task didn't include a Figma file or another detailed design reference, those first versions weren't quite right, so I reviewed and corrected them by hand.
+
+After that, I used Codex to work through smaller features, reviewing the changes manually as I went. I also used AI to draft parts of this README, which I then reviewed and edited manually. Finally, I experimented with a couple of small UI animations while taking advantage of Expo's [animation skill](https://docs.expo.dev/skills/) and was really impressed by how quickly and accurately they were implemented.
+
 ## Development
 
-The pre-commit hook runs ESLint, TypeScript, and Jest checks before each commit.
+The pre-commit hook runs ESLint and TypeScript checks before each commit.
 It is installed automatically when dependencies are installed with `npm install`.
-To install it manually, run:
 
-```bash
-npm run prepare
-```
+You can also run the checks directly with `npm run lint`, `npm run typecheck`.
 
-You can run the checks directly with `npm run lint`, `npm run typecheck`.
+Pretter and eslint are used for code-formatting and linting.
 
 ## Testing
 
 Run the unit tests with:
 
 ```bash
-npm test -- --runInBand
+npm test
 ```
 
-The tests cover utility behavior such as recursive key normalization and attachment CSV parsing.
+The tests cover utility behavior such as recursive key normalization and attachment CSV parsing. Since this is a small, simple project I opted for only testing more complex helper functions with unit tests. The unit tests also double as a form of documentation in terms of how the function should work.
 
 ## Known Limitations
 
