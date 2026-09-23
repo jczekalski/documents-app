@@ -2,7 +2,7 @@
 
 This repository was created as part of a recruitment task for a **Senior React Native Developer** position.
 
-It is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app). The application displays **documents and notifications** fetched from a simple Go server that generates random mock data.
+It is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app). The application displays **documents and notifications** fetched from a simple Go server that generates random mock data. I chose Expo Go because it provides the fastest way to set up a small project like this while also providing all of the advantages of the Expo ecosystem.
 
 The server exposes two endpoints:
 
