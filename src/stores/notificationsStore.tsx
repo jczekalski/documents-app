@@ -10,14 +10,18 @@ import {
 } from "react";
 import Toast from "react-native-toast-message";
 
-import { connectNotifications } from "@/services/notifications";
 import { readStoredArray, storeArray } from "@/services/localStorage";
+import {
+  connectNotifications,
+  type NotificationConnectionStatus,
+} from "@/services/notifications";
 import { Notification } from "@/types/notification";
 
 const NOTIFICATIONS_STORAGE_KEY = "notifications";
 
 interface NotificationsContextValue {
   notifications: Notification[];
+  connectionStatus: NotificationConnectionStatus;
   addNotification: (notification: Notification) => void;
 }
 
@@ -40,6 +44,8 @@ export function NotificationsProvider({
   const [notifications, setNotifications] = useState<Notification[]>(() =>
     readStoredArray<Notification>(NOTIFICATIONS_STORAGE_KEY),
   );
+  const [connectionStatus, setConnectionStatus] =
+    useState<NotificationConnectionStatus>("connecting");
   const queueRef = useRef<Notification[]>([]);
   const processingRef = useRef(false);
 
@@ -88,7 +94,10 @@ export function NotificationsProvider({
   }, [notifications]);
 
   useEffect(() => {
-    const disconnect = connectNotifications(addNotification);
+    const disconnect = connectNotifications(
+      addNotification,
+      setConnectionStatus,
+    );
 
     return disconnect;
   }, [addNotification]);
@@ -96,9 +105,10 @@ export function NotificationsProvider({
   const value = useMemo(
     () => ({
       notifications,
+      connectionStatus,
       addNotification,
     }),
-    [notifications, addNotification],
+    [notifications, connectionStatus, addNotification],
   );
 
   return (

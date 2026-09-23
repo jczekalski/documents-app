@@ -1,6 +1,7 @@
 export { AddDocumentSheet } from "./AddDocumentSheet";
 export { DocumentCard } from "./DocumentCard";
 export { DocumentList } from "./DocumentList";
+export { DocumentStatusBanner } from "./DocumentStatusBanner";
 export { DocumentToolbar } from "./DocumentToolbar";
 export { Header } from "./Header";
 export { SortButton } from "./SortButton";

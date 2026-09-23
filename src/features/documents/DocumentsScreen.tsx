@@ -13,6 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import {
   AddDocumentSheet,
   DocumentList,
+  DocumentStatusBanner,
   DocumentToolbar,
   Header,
   type DocumentViewMode,
@@ -49,8 +50,9 @@ export function DocumentsScreen() {
 
   const addDocumentSheetRef = useRef<BottomSheetModal>(null);
 
-  const { documents, loading, loadDocuments, addDocument } = useDocuments();
-  const { notifications } = useNotifications();
+  const { documents, loading, error, loadDocuments, addDocument } =
+    useDocuments();
+  const { notifications, connectionStatus } = useNotifications();
 
   const sortedDocuments = useMemo(
     () => sortDocuments(documents, sortOption),
@@ -82,6 +84,13 @@ export function DocumentsScreen() {
         onViewModeChange={setViewMode}
         sortOption={sortOption}
         onSortOptionChange={setSortOption}
+      />
+      <DocumentStatusBanner
+        error={error}
+        hasSavedDocuments={documents.length > 0}
+        loading={loading}
+        notificationStatus={connectionStatus}
+        onRetry={loadDocuments}
       />
       <View style={styles.listContainer}>
         <DocumentList
