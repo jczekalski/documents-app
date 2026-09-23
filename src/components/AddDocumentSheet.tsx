@@ -177,7 +177,7 @@ export const AddDocumentSheet = forwardRef<
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.sectionTitle}>Document informations</Text>
+          <Text style={styles.sectionTitle}>Document information</Text>
 
           <FormField label="Name">
             <BottomSheetTextInput
@@ -338,8 +338,8 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     borderRadius: radius.md,
     color: colors.textPrimary,
-    fontSize: typography.lg.fontSize,
-    lineHeight: typography.lg.lineHeight,
+    fontSize: typography.md.fontSize,
+    lineHeight: typography.md.lineHeight,
   },
   fileButton: {
     height: 56,
@@ -355,8 +355,8 @@ const styles = StyleSheet.create({
   },
   fileButtonText: {
     color: colors.primary,
-    fontSize: typography.lg.fontSize,
-    lineHeight: typography.lg.lineHeight,
+    fontSize: typography.md.fontSize,
+    lineHeight: typography.md.lineHeight,
     fontWeight: fontWeights.medium,
   },
   selectedFile: {
