@@ -1,4 +1,4 @@
-import { normalizeKeys } from "./utils";
+import { normalizeKeys } from "./normalizeKeys";
 
 describe("normalizeKeys", () => {
   it("converts snake case and PascalCase keys to camel case", () => {
@@ -41,6 +41,49 @@ describe("normalizeKeys", () => {
     expect(normalizeKeys({ EMPTY_LIST: [], EMPTY_OBJECT: {} })).toEqual({
       emptyList: [],
       emptyObject: {},
+    });
+  });
+
+  it("normalizes keys with spaces, hyphens, and underscores", () => {
+    expect(
+      normalizeKeys({
+        DOCUMENT_TITLE: "Plan",
+        "CREATED-AT": "today",
+        "UPDATED AT": "tomorrow",
+      }),
+    ).toEqual({
+      documentTitle: "Plan",
+      createdAt: "today",
+      updatedAt: "tomorrow",
+    });
+  });
+
+  it("recursively normalizes mixed arrays, objects, and null values", () => {
+    expect(
+      normalizeKeys({
+        DOCUMENTS: [
+          { ATTACHMENT_NAMES: ["one", "two"] },
+          null,
+          [{ FILE_ID: "file-1" }, { FILE_ID: "file-2" }],
+        ],
+      }),
+    ).toEqual({
+      documents: [
+        { attachmentNames: ["one", "two"] },
+        null,
+        [{ fileId: "file-1" }, { fileId: "file-2" }],
+      ],
+    });
+  });
+
+  it("does not mutate the input object", () => {
+    const input = { DOCUMENT_NAME: "Plan", METADATA: { CREATED_AT: "today" } };
+
+    normalizeKeys(input);
+
+    expect(input).toEqual({
+      DOCUMENT_NAME: "Plan",
+      METADATA: { CREATED_AT: "today" },
     });
   });
 });

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { normalizeKeys } from "@/utils";
+import { normalizeKeys } from "@/utils/normalizeKeys";
 import { Document } from "../types/document";
 import { backendUrl } from "./constants";
 

@@ -5,13 +5,14 @@ import {
   BottomSheetScrollView,
   BottomSheetTextInput,
 } from "@gorhom/bottom-sheet";
+import { Asset } from "expo-asset";
 import * as Crypto from "expo-crypto";
 import * as DocumentPicker from "expo-document-picker";
 import { forwardRef, useCallback, useMemo, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-
-import { Document } from "@/types/document";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+import { BottomButton } from "@/components/base";
 import {
   colors,
   fontWeights,
@@ -20,12 +21,26 @@ import {
   spacing,
   typography,
 } from "@/constants/designSystem";
-import { BottomButton } from "@/components/base";
+import { Document } from "@/types/document";
+import { readAttachmentCsv } from "@/utils/attachmentsCsv";
+
+import attachmentsCsv from "../../../../assets/attachements-data.csv";
 
 export interface NewDocumentData {
   title: string;
   version: string;
   file: DocumentPicker.DocumentPickerAsset | null;
+}
+
+async function readDevelopmentAttachmentCsv(): Promise<string[]> {
+  const asset = Asset.fromModule(attachmentsCsv);
+  await asset.downloadAsync();
+
+  if (!asset.localUri) {
+    throw new Error("Unable to load the sample attachments CSV.");
+  }
+
+  return readAttachmentCsv(asset.localUri);
 }
 
 interface AddDocumentSheetProps {
@@ -38,17 +53,17 @@ export const AddDocumentSheet = forwardRef<
 >(function AddDocumentSheet({ onSubmit }, ref) {
   const snapPoints = useMemo(() => ["78%"], []);
   const insets = useSafeAreaInsets();
-
   const [title, setTitle] = useState("");
   const [version, setVersion] = useState("");
   const [file, setFile] = useState<DocumentPicker.DocumentPickerAsset | null>(
     null,
   );
-
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const hasRequiredFields = title !== "" && version !== "";
+  const hasRequiredFields =
+    title.trim() !== "" && version.trim() !== "" && (file !== null || __DEV__);
+
   const bottomSpacer = insets.bottom || spacing.lg;
 
   const resetForm = useCallback(() => {
@@ -72,7 +87,7 @@ export const AddDocumentSheet = forwardRef<
 
     try {
       const result = await DocumentPicker.getDocumentAsync({
-        type: "*/*",
+        type: "text/csv",
         copyToCacheDirectory: true,
         multiple: false,
       });
@@ -96,39 +111,46 @@ export const AddDocumentSheet = forwardRef<
       return;
     }
 
+    if (!file && !__DEV__) {
+      setError("Please select a CSV file.");
+      return;
+    }
+
     setError(null);
     setSubmitting(true);
 
-    const now = new Date().toISOString();
-
-    const newDocument: Document = {
-      id: Crypto.randomUUID(),
-      createdAt: now,
-      updatedAt: now,
-      title,
-      version,
-      // TODO: convert file to attachements
-      attachments: [],
-      contributors: [
-        {
-          id: "current-user",
-          name: "You",
-        },
-      ],
-    };
-
     try {
+      // Use the bundled CSV as development sample data when no file is selected.
+      const attachments = file
+        ? await readAttachmentCsv(file.uri)
+        : await readDevelopmentAttachmentCsv();
+      const now = new Date().toISOString();
+
+      const newDocument: Document = {
+        id: Crypto.randomUUID(),
+        createdAt: now,
+        updatedAt: now,
+        title: title.trim(),
+        version: version.trim(),
+        attachments,
+        contributors: [
+          {
+            id: "current-user",
+            name: "You",
+          },
+        ],
+      };
+
       await onSubmit(newDocument);
 
       resetForm();
-
       (ref as React.RefObject<BottomSheetModal>).current?.dismiss();
     } catch {
       setError("Unable to create the document.");
     } finally {
       setSubmitting(false);
     }
-  }, [title, version, onSubmit, resetForm, ref]);
+  }, [file, onSubmit, ref, resetForm, title, version]);
 
   return (
     <BottomSheetModal
@@ -153,7 +175,6 @@ export const AddDocumentSheet = forwardRef<
       <View style={[styles.container, { paddingBottom: bottomSpacer }]}>
         <View style={styles.header}>
           <Text style={styles.title}>Add document</Text>
-
           <Pressable
             accessibilityRole="button"
             accessibilityLabel="Close"
@@ -219,9 +240,14 @@ export const AddDocumentSheet = forwardRef<
                 size={iconSize.md}
                 color={colors.primary}
               />
-
-              <Text style={styles.fileButtonText}>Choose file</Text>
+              <Text style={styles.fileButtonText}>Choose CSV file</Text>
             </Pressable>
+
+            {__DEV__ && !file && (
+              <Text style={styles.fileHint}>
+                Sample attachments from the bundled CSV will be used.
+              </Text>
+            )}
 
             {file && (
               <View style={styles.selectedFile}>
@@ -230,11 +256,9 @@ export const AddDocumentSheet = forwardRef<
                   size={20}
                   color={colors.success}
                 />
-
                 <Text numberOfLines={1} style={styles.selectedFileText}>
                   {file.name}
                 </Text>
-
                 <Pressable
                   onPress={() => setFile(null)}
                   disabled={submitting}
@@ -277,7 +301,6 @@ function FormField({ label, children }: FormFieldProps) {
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   background: {
     backgroundColor: colors.surface,
@@ -358,6 +381,12 @@ const styles = StyleSheet.create({
     fontSize: typography.md.fontSize,
     lineHeight: typography.md.lineHeight,
     fontWeight: fontWeights.medium,
+  },
+  fileHint: {
+    marginTop: spacing.sm,
+    color: colors.textSecondary,
+    fontSize: typography.sm.fontSize,
+    lineHeight: typography.sm.lineHeight,
   },
   selectedFile: {
     marginTop: spacing.md,

@@ -1,6 +1,6 @@
 import { Notification } from "@/types/notification";
 
-import { normalizeKeys } from "../utils";
+import { normalizeKeys } from "../utils/normalizeKeys";
 import { backendUrl } from "./constants";
 
 export function connectNotifications(
