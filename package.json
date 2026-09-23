@@ -6,6 +6,7 @@
     "@expo/vector-icons": "^15.1.1",
     "@gorhom/bottom-sheet": "^5.2.14",
     "axios": "^1.20.0",
+    "date-fns": "^4.4.0",
     "expo": "~57.0.24",
     "expo-asset": "~57.0.18",
     "expo-constants": "~57.0.19",

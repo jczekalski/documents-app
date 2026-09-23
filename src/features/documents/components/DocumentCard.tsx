@@ -1,4 +1,5 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { formatDistanceToNow } from "date-fns";
 import {
   Pressable,
   StyleProp,
@@ -19,6 +20,16 @@ import {
 } from "@/constants/designSystem";
 
 import { Document } from "@/types/document";
+
+function formatRelativeDate(value: string): string {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return "unknown";
+  }
+
+  return formatDistanceToNow(date, { addSuffix: true });
+}
 
 interface DocumentCardProps {
   document: Document;
@@ -42,6 +53,14 @@ export function DocumentCard({
           {document.title}
         </Text>
         <Text style={styles.version}>Version {document.version}</Text>
+      </View>
+      <View style={styles.dates}>
+        <Text style={styles.dateText}>
+          Created: {formatRelativeDate(document.createdAt)}
+        </Text>
+        <Text style={styles.dateText}>
+          Updated: {formatRelativeDate(document.updatedAt)}
+        </Text>
       </View>
       {!compact && (
         <View style={styles.columns}>
@@ -101,6 +120,15 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "baseline",
     marginBottom: spacing.sm,
+  },
+  dates: {
+    gap: spacing.xs,
+    marginBottom: spacing.md,
+  },
+  dateText: {
+    color: colors.textSecondary,
+    fontSize: typography.xs.fontSize,
+    lineHeight: typography.xs.lineHeight,
   },
   title: {
     flexShrink: 1,

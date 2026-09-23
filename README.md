@@ -112,7 +112,7 @@ The app keeps route entry points in `src/app/` and organizes the document experi
 - **Local notifications — NOT COMPLETED.** Since native local notifications are unsupported in Expo Go on the simulator, the app currently shows in-app toasts while connected to the WebSocket.
 - **Pull to refresh — Completed.** Useful for testing, the app will fetch a new array of documents on each pull.
 - **Native share button — NOT COMPLETED.**
-- **Relative dates — NOT COMPLETED.**
+- **Relative dates — Completed.** Document cards show created and updated timestamps as relative labels, formatted with `date-fns` (for example, “Created 1 day ago”).
 
 ## Development
 
