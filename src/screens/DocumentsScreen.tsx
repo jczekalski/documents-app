@@ -1,57 +1,37 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
 
 import { colors } from "../designSystem";
 
 import { AddDocumentSheet } from "@/components/AddDocumentSheet";
 import { BottomButton } from "@/components/BottomButton";
-import { getDocuments } from "@/services/documents";
+import { useDocuments } from "@/stores/documentsStore";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { DocumentList } from "../components/DocumentList";
 import { DocumentToolbar } from "../components/DocumentToolbar";
 import { Header } from "../components/Header";
 import { DocumentViewMode } from "../components/ViewToggle";
-import { Document } from "../types/document";
 
 export function DocumentsScreen() {
   const [viewMode, setViewMode] = useState<DocumentViewMode>("list");
-  const [refreshing, setRefreshing] = useState(false);
-  const [documents, setDocuments] = useState<Document[]>([]);
 
   const addDocumentSheetRef = useRef<BottomSheetModal>(null);
 
+  const { documents, loading, loadDocuments, addDocument } = useDocuments();
+
   const notificationCount = 0;
+  const sortedDocuments = [...documents].sort(
+    (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
+  );
 
-  const fetchData = async () => {
-    setRefreshing(true);
-    try {
-      const documents = await getDocuments();
-      console.log(JSON.stringify(documents, null, 2));
-      setDocuments(documents);
-    } catch (e) {
-      console.error("Server error.", e);
-    } finally {
-      setRefreshing(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const refetchData = () => {
-    fetchData();
+  const refresh = async () => {
+    await loadDocuments();
   };
 
   const openAddDocumentSheet = useCallback(() => {
     addDocumentSheetRef.current?.present();
   }, []);
-
-  // Note: Stores data locally, since using a database is not allowed in this task
-  const handleCreateDocument = (data: Document) => {
-    setDocuments((current) => [data, ...current]);
-  };
 
   return (
     <SafeAreaView style={styles.screen}>
@@ -59,10 +39,10 @@ export function DocumentsScreen() {
       <DocumentToolbar viewMode={viewMode} onViewModeChange={setViewMode} />
       <View style={styles.listContainer}>
         <DocumentList
-          documents={documents}
+          documents={sortedDocuments}
           viewMode={viewMode}
-          refreshing={refreshing}
-          onRefresh={refetchData}
+          refreshing={loading}
+          onRefresh={refresh}
         />
       </View>
       <BottomButton
@@ -72,7 +52,8 @@ export function DocumentsScreen() {
       />
       <AddDocumentSheet
         ref={addDocumentSheetRef}
-        onSubmit={handleCreateDocument}
+        // Note: Stores data locally, since using a database is not allowed in this task
+        onSubmit={addDocument}
       />
     </SafeAreaView>
   );
