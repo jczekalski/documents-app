@@ -1,4 +1,5 @@
 import { Notification } from "@/types/notification";
+
 import { normalizeKeys } from "../utils";
 import { backendUrl } from "./constants";
 
@@ -17,8 +18,6 @@ export function connectNotifications(
         JSON.parse(event.data),
       ) as Notification;
 
-      console.log("Received notification:", notification);
-
       onNotification(notification);
     } catch (error) {
       console.error("Failed to parse WebSocket message", error);
@@ -33,7 +32,6 @@ export function connectNotifications(
     console.log("WebSocket closed:", event.code, event.reason);
   };
 
-  // Important: return a cleanup function
   return () => {
     socket.close();
   };

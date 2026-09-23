@@ -6,6 +6,7 @@ import { colors } from "../designSystem";
 import { AddDocumentSheet } from "@/components/AddDocumentSheet";
 import { BottomButton } from "@/components/BottomButton";
 import { useDocuments } from "@/stores/documentsStore";
+import { useNotifications } from "@/stores/notificationsStore";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { DocumentList } from "../components/DocumentList";
@@ -19,11 +20,12 @@ export function DocumentsScreen() {
   const addDocumentSheetRef = useRef<BottomSheetModal>(null);
 
   const { documents, loading, loadDocuments, addDocument } = useDocuments();
+  const { notifications } = useNotifications();
 
-  const notificationCount = 0;
   const sortedDocuments = [...documents].sort(
     (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
   );
+  const notificationCount = notifications.length;
 
   const refresh = async () => {
     await loadDocuments();
