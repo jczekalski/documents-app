@@ -9,7 +9,10 @@ import {
 } from "react";
 
 import type { Document } from "@/schemas/document";
-import { getDocuments } from "@/services/documents";
+import {
+  fetchDocuments,
+  type DocumentsFetchResult,
+} from "@/services/documents";
 import { readStoredArray, storeArray } from "@/services/localStorage";
 
 const DOCUMENTS_STORAGE_KEY = "documents";
@@ -18,7 +21,7 @@ interface DocumentsContextValue {
   documents: Document[];
   loading: boolean;
   error: Error | null;
-  loadDocuments: () => Promise<void>;
+  refetchDocuments: () => Promise<void>;
   addDocument: (document: Document) => void;
 }
 
@@ -37,21 +40,23 @@ export function DocumentsProvider({ children }: DocumentsProviderProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const loadDocuments = useCallback(async () => {
-    setLoading(true);
-
-    try {
-      const documents = await getDocuments();
-      setDocuments(documents);
-      setError(null);
-    } catch (error) {
-      setError(
-        error instanceof Error ? error : new Error("Failed to fetch documents"),
-      );
-    } finally {
+  const handleDocumentsFetchResult = useCallback(
+    (result: DocumentsFetchResult) => {
+      if (result.error) {
+        setError(result.error);
+      } else {
+        setDocuments(result.documents);
+        setError(null);
+      }
       setLoading(false);
-    }
-  }, []);
+    },
+    [],
+  );
+
+  const refetchDocuments = useCallback(async () => {
+    setLoading(true);
+    handleDocumentsFetchResult(await fetchDocuments());
+  }, [handleDocumentsFetchResult]);
 
   const addDocument = useCallback((document: Document) => {
     setDocuments((currentDocuments) => [...currentDocuments, document]);
@@ -62,49 +67,28 @@ export function DocumentsProvider({ children }: DocumentsProviderProps) {
   }, [documents]);
 
   useEffect(() => {
-    // A request can finish after this effect is cleaned up (for example, when
-    // the provider unmounts or Strict Mode re-runs the effect). Ignore results
-    // from that stale request so they cannot update state afterward.
-    let isActive = true;
+    // Keep the initial request inside an async effect function. Calling
+    // refetchDocuments here would synchronously set loading and trigger
+    // React's set-state-in-effect lint rule. Both paths share request and
+    // result handling. The initial path already starts with loading=true.
+    async function initialLoadDocuments() {
+      const result = await fetchDocuments();
 
-    async function load() {
-      try {
-        const documents = await getDocuments();
-        if (!isActive) return;
-
-        setDocuments(documents);
-        setError(null);
-      } catch (error) {
-        if (!isActive) return;
-
-        setError(
-          error instanceof Error
-            ? error
-            : new Error("Failed to fetch documents"),
-        );
-      } finally {
-        if (isActive) {
-          setLoading(false);
-        }
-      }
+      handleDocumentsFetchResult(result);
     }
 
-    void load();
-
-    return () => {
-      isActive = false;
-    };
-  }, []);
+    initialLoadDocuments();
+  }, [handleDocumentsFetchResult]);
 
   const value = useMemo(
     () => ({
       documents,
       loading,
       error,
-      loadDocuments,
+      refetchDocuments,
       addDocument,
     }),
-    [documents, loading, error, loadDocuments, addDocument],
+    [documents, loading, error, refetchDocuments, addDocument],
   );
 
   return (

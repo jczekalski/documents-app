@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import { getDocuments } from "./documents";
+import { fetchDocuments } from "./documents";
 
 jest.mock("axios", () => ({
   __esModule: true,
@@ -22,7 +22,7 @@ const validServerDocument = {
   Version: "1.0.0",
 };
 
-describe("getDocuments", () => {
+describe("fetchDocuments", () => {
   const mockGet = jest.mocked(axios.get);
 
   beforeEach(() => {
@@ -32,8 +32,8 @@ describe("getDocuments", () => {
   it("requests documents and returns normalized, validated data", async () => {
     mockGet.mockResolvedValue({ data: [validServerDocument] });
 
-    await expect(getDocuments()).resolves.toEqual([
-      {
+    await expect(fetchDocuments()).resolves.toEqual({
+      documents: [{
         id: validServerDocument.ID,
         createdAt: validServerDocument.CreatedAt,
         updatedAt: validServerDocument.UpdatedAt,
@@ -46,16 +46,29 @@ describe("getDocuments", () => {
           },
         ],
         version: validServerDocument.Version,
-      },
-    ]);
+      }],
+      error: null,
+    });
     expect(mockGet).toHaveBeenCalledWith("http://localhost:8080/documents");
   });
 
-  it("rejects a response that does not match the document schema", async () => {
+  it("returns a validation error when the response does not match the document schema", async () => {
     mockGet.mockResolvedValue({
       data: [{ ...validServerDocument, Title: null }],
     });
 
-    await expect(getDocuments()).rejects.toThrow();
+    await expect(fetchDocuments()).resolves.toMatchObject({
+      documents: null,
+      error: expect.any(Error),
+    });
+  });
+
+  it("returns a request error result when fetching or validation fails", async () => {
+    mockGet.mockRejectedValue(new Error("offline"));
+
+    await expect(fetchDocuments()).resolves.toEqual({
+      documents: null,
+      error: new Error("offline"),
+    });
   });
 });

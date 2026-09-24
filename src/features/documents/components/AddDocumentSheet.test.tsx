@@ -6,7 +6,7 @@ import {
 } from "@testing-library/react-native";
 import { Text } from "react-native";
 
-import { getDocuments } from "@/services/documents";
+import { fetchDocuments } from "@/services/documents";
 import { readStoredArray, storeArray } from "@/services/localStorage";
 import { DocumentsProvider, useDocuments } from "@/stores/documentsStore";
 import { readAttachmentCsv } from "@/utils/attachmentsCsv";
@@ -46,7 +46,7 @@ jest.mock("expo-document-picker", () => ({
 jest.mock("react-native-safe-area-context", () => ({
   useSafeAreaInsets: () => ({ top: 0, right: 0, bottom: 0, left: 0 }),
 }));
-jest.mock("@/services/documents", () => ({ getDocuments: jest.fn() }));
+jest.mock("@/services/documents", () => ({ fetchDocuments: jest.fn() }));
 jest.mock("@/services/localStorage", () => ({
   readStoredArray: jest.fn(() => []),
   storeArray: jest.fn(),
@@ -71,7 +71,9 @@ function AddDocumentHarness() {
 
 describe("AddDocumentSheet", () => {
   beforeEach(() => {
-    jest.mocked(getDocuments).mockResolvedValue([]);
+    jest
+      .mocked(fetchDocuments)
+      .mockResolvedValue({ documents: [], error: null });
     jest.mocked(readStoredArray).mockReturnValue([]);
     jest.mocked(storeArray).mockClear();
     jest
@@ -89,7 +91,7 @@ describe("AddDocumentSheet", () => {
     await waitFor(() =>
       expect(screen.getByTestId("loading").props.children).toBe("false"),
     );
-    expect(getDocuments).toHaveBeenCalledTimes(1);
+    expect(fetchDocuments).toHaveBeenCalledTimes(1);
     await fireEvent.changeText(
       screen.getByTestId("document-title-input"),
       "  Budget  ",

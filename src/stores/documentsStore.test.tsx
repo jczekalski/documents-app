@@ -1,10 +1,10 @@
 import { act, renderHook, waitFor } from "@testing-library/react-native";
 
-import { getDocuments } from "@/services/documents";
+import { fetchDocuments } from "@/services/documents";
 import { readStoredArray, storeArray } from "@/services/localStorage";
 import { DocumentsProvider, useDocuments } from "./documentsStore";
 
-jest.mock("@/services/documents", () => ({ getDocuments: jest.fn() }));
+jest.mock("@/services/documents", () => ({ fetchDocuments: jest.fn() }));
 jest.mock("@/services/localStorage", () => ({
   readStoredArray: jest.fn(() => []),
   storeArray: jest.fn(),
@@ -23,16 +23,19 @@ const savedDocument = {
 };
 
 describe("DocumentsProvider", () => {
-  const mockGetDocuments = jest.mocked(getDocuments);
+  const mockFetchDocuments = jest.mocked(fetchDocuments);
 
   beforeEach(() => {
-    mockGetDocuments.mockReset();
+    mockFetchDocuments.mockReset();
     jest.mocked(readStoredArray).mockReturnValue([]);
     jest.mocked(storeArray).mockClear();
   });
 
   it("loads documents when the provider starts", async () => {
-    mockGetDocuments.mockResolvedValue([savedDocument]);
+    mockFetchDocuments.mockResolvedValue({
+      documents: [savedDocument],
+      error: null,
+    });
 
     const { result } = await renderHook(() => useDocuments(), {
       wrapper: DocumentsProvider,
@@ -42,13 +45,13 @@ describe("DocumentsProvider", () => {
 
     expect(result.current.documents).toEqual([savedDocument]);
     expect(result.current.error).toBeNull();
-    expect(mockGetDocuments).toHaveBeenCalledTimes(1);
+    expect(mockFetchDocuments).toHaveBeenCalledTimes(1);
   });
 
   it("exposes an initial fetch error and can retry successfully", async () => {
-    mockGetDocuments
-      .mockRejectedValueOnce(new Error("offline"))
-      .mockResolvedValueOnce([savedDocument]);
+    mockFetchDocuments
+      .mockResolvedValueOnce({ documents: null, error: new Error("offline") })
+      .mockResolvedValueOnce({ documents: [savedDocument], error: null });
 
     const { result } = await renderHook(() => useDocuments(), {
       wrapper: DocumentsProvider,
@@ -56,14 +59,14 @@ describe("DocumentsProvider", () => {
 
     await waitFor(() => expect(result.current.loading).toBe(false));
     expect(result.current.error?.message).toBe("offline");
-    expect(mockGetDocuments).toHaveBeenCalledTimes(1);
+    expect(mockFetchDocuments).toHaveBeenCalledTimes(1);
 
     await act(async () => {
-      await result.current.loadDocuments();
+      await result.current.refetchDocuments();
     });
 
     expect(result.current.documents).toEqual([savedDocument]);
     expect(result.current.error).toBeNull();
-    expect(mockGetDocuments).toHaveBeenCalledTimes(2);
+    expect(mockFetchDocuments).toHaveBeenCalledTimes(2);
   });
 });

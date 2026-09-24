@@ -50,7 +50,7 @@ export function DocumentsScreen() {
 
   const addDocumentSheetRef = useRef<BottomSheetModal>(null);
 
-  const { documents, loading, error, loadDocuments, addDocument } =
+  const { documents, loading, error, refetchDocuments, addDocument } =
     useDocuments();
   const { notifications, connectionStatus } = useNotifications();
 
@@ -61,7 +61,7 @@ export function DocumentsScreen() {
   const notificationCount = notifications.length;
 
   const refresh = async () => {
-    await loadDocuments();
+    await refetchDocuments();
   };
 
   const openAddDocumentSheet = useCallback(() => {
@@ -90,7 +90,7 @@ export function DocumentsScreen() {
         hasSavedDocuments={documents.length > 0}
         loading={loading}
         notificationStatus={connectionStatus}
-        onRetry={loadDocuments}
+        onRetry={refetchDocuments}
       />
       <View style={styles.listContainer}>
         <DocumentList
