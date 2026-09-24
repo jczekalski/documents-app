@@ -1,3 +1,13 @@
+import type { Notification } from "@/schemas/notification";
+import { readStoredArray, storeArray } from "@/services/localStorage";
+import {
+  configureNotificationPresentation,
+  presentQueuedNotification,
+} from "@/services/notificationPresentation";
+import {
+  connectNotifications,
+  type NotificationConnectionStatus,
+} from "@/services/notifications";
 import {
   createContext,
   useCallback,
@@ -8,14 +18,6 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import Toast from "react-native-toast-message";
-
-import type { Notification } from "@/schemas/notification";
-import { readStoredArray, storeArray } from "@/services/localStorage";
-import {
-  connectNotifications,
-  type NotificationConnectionStatus,
-} from "@/services/notifications";
 
 const NOTIFICATIONS_STORAGE_KEY = "notifications";
 
@@ -33,10 +35,8 @@ interface NotificationsProviderProps {
   children: ReactNode;
 }
 
-// Specifies how long each notification is displayed.
-const TOAST_DURATION = 3000;
-// Specifies time between notifications, so as not to spam the user.
-const NOTIFICATION_DELAY = TOAST_DURATION + 3000;
+// Space notifications out so queued events are presented one at a time.
+const NOTIFICATION_DELAY = 6000;
 
 export function NotificationsProvider({
   children,
@@ -63,13 +63,11 @@ export function NotificationsProvider({
         continue;
       }
 
-      Toast.show({
-        type: "success",
-        text1: notification.documentTitle,
-        text2: `${notification.userName} created ${notification.documentTitle}.`,
-        visibilityTime: TOAST_DURATION,
-        position: "top",
-      });
+      try {
+        await presentQueuedNotification(notification);
+      } catch (error) {
+        console.error("Failed to present notification", error);
+      }
 
       await new Promise((resolve) => {
         setTimeout(resolve, NOTIFICATION_DELAY);
@@ -94,12 +92,31 @@ export function NotificationsProvider({
   }, [notifications]);
 
   useEffect(() => {
-    const disconnect = connectNotifications(
-      addNotification,
-      setConnectionStatus,
-    );
+    // Setup is async, so keep the disconnect function available to cleanup
+    // even when the socket is created after this effect first runs.
+    let disconnect: (() => void) | undefined;
+    // If cleanup runs while setup is awaiting permission, skip connecting later.
+    let isCancelled = false;
 
-    return disconnect;
+    async function connectAfterNotificationSetup() {
+      await configureNotificationPresentation();
+
+      if (!isCancelled) {
+        disconnect = connectNotifications(addNotification, setConnectionStatus);
+      }
+    }
+
+    connectAfterNotificationSetup().catch((error) => {
+      console.error("Failed to set up local notifications", error);
+      if (!isCancelled) {
+        disconnect = connectNotifications(addNotification, setConnectionStatus);
+      }
+    });
+
+    return () => {
+      isCancelled = true;
+      disconnect?.();
+    };
   }, [addNotification]);
 
   const value = useMemo(

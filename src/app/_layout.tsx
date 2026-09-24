@@ -2,16 +2,19 @@ import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { Stack } from "expo-router";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Toast from "react-native-toast-message";
+import { Platform } from "react-native";
 
 import { spacing } from "@/constants/designSystem";
 import { DocumentsProvider } from "@/stores/documentsStore";
 import { NotificationsProvider } from "@/stores/notificationsStore";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-function AppToast() {
+function AndroidToast() {
   const insets = useSafeAreaInsets();
 
-  return <Toast topOffset={insets.top + spacing.md} />;
+  return Platform.OS === "android" ? (
+    <Toast topOffset={insets.top + spacing.md} />
+  ) : null;
 }
 
 export default function RootLayout() {
@@ -28,7 +31,7 @@ export default function RootLayout() {
           </BottomSheetModalProvider>
         </NotificationsProvider>
       </DocumentsProvider>
-      <AppToast />
+      <AndroidToast />
     </GestureHandlerRootView>
   );
 }

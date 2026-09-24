@@ -8,17 +8,17 @@ The supplied server is a mock: it generates new random documents on every reques
 
 ### Required features
 
-- **Most recent documents in list or grid view — Completed.** Documents are displayed using a single `FlatList`, with the view toggle switching between a single-column list and a two-column grid. Since both views use the same underlying data and only differ in their layout and level of detail, I chose to re-render the list when the view mode changes rather than maintaining two separate `FlatList` instances. This keeps the implementation simpler and avoids duplicating list configuration and behavior. When using grid view, the number of columns can be easily modified be updating the `GRID_MODE_COLUMNS_COUNT` variable. The sort selector is also fully functional and supports sorting by date and title.
-- **Real-time notifications for documents created by other users — Completed.** A WebSocket connection receives notification events and displays them as queued in-app toast messages. The connection automatically retries with backoff after a disconnect, and the screen shows when it is connecting or reconnecting.
-- **Create a document — Completed.** The add-document sheet collects a name, version, and attachment CSV, parses attachment names, then adds the new document to local state. In development, a bundled CSV supplies sample attachments when no file is selected. The mock server has no create endpoint, so the next successful fetch replaces locally created documents with its newly generated list.
+- **Most recent documents in list or grid view — ✅** Documents are displayed using a single `FlatList`, with the view toggle switching between a single-column list and a two-column grid. Since both views use the same underlying data and only differ in their layout and level of detail, I chose to re-render the list when the view mode changes rather than maintaining two separate `FlatList` instances. This keeps the implementation simpler and avoids duplicating list configuration and behavior. When using grid view, the number of columns can be easily modified be updating the `GRID_MODE_COLUMNS_COUNT` variable. The sort selector is also fully functional and supports sorting by date and title.
+- **Real-time notifications for documents created by other users — ✅** A WebSocket connection receives notification events and presents them one at a time from a queue. Android uses in-app toast messages, iOS schedules native local notifications. The connection automatically retries with backoff after a disconnect, and the screen shows when it is connecting or reconnecting.
+- **Create a document — ✅** The add-document sheet collects a name, version, and attachment CSV, parses attachment names, then adds the new document to local state. In development, a bundled CSV supplies sample attachments when no file is selected. The mock server has no create endpoint, so the next successful fetch replaces locally created documents with its newly generated list.
 
 ### Optional features
 
-- **Basic offline support — Completed.** Each provider restores its data array from `expo-sqlite/kv-store` at startup and saves it whenever state changes. If a document fetch fails, cached documents remain visible and an error banner offers a retry button. Pull to refresh also retries the request. A successful fetch replaces the server-provided list, including any locally added documents. When implementing offline mode properly, a much better solution would be to use an offline-first architecture or a database with offline synchronization, since resolving conflicts and syncing changes manually is difficult and error-prone.
-- **Local notifications — Not completed.** New document events currently appear as in-app toasts while the WebSocket is connected. The app does not schedule native local notifications since Expo Go does not support notifications on the simulator. When migrating to local notifications the logic would remain unchanged, the only difference would be calling a function that schedules a local notification instead of the toast and platform-specific notification setup.
-- **Pull to refresh — Completed.** Fetches a new array of mock documents. There is also an error banner which provides a retry button when a fetch fails.
-- **Native share button — Completed.** Each document card can be shared as a JSON file through the platform share sheet.
-- **Relative dates — Completed.** Document cards show created and updated timestamps as relative labels, formatted with `date-fns`.
+- **Basic offline support — ✅** Each provider restores its data array from `expo-sqlite/kv-store` at startup and saves it whenever state changes. If a document fetch fails, cached documents remain visible and an error banner offers a retry button. Pull to refresh also retries the request. A successful fetch replaces the server-provided list, including any locally added documents. When implementing offline mode properly, a much better solution would be to use an offline-first architecture or a database with offline synchronization, since resolving conflicts and syncing changes manually is difficult and error-prone.
+- **Local notifications — ✅ on iOS.** Received WebSocket events are permission-gated and scheduled as native local notifications one at a time on iOS. Android presents notifications as in-app toast messages. I chose this platform split to demonstrate two ways of solving the notification task; neither adds remote push delivery while the app is closed.
+- **Pull to refresh — ✅** Fetches a new array of mock documents. There is also an error banner which provides a retry button when a fetch fails.
+- **Native share button — ✅** Each document card can be shared as a JSON file through the platform share sheet.
+- **Relative dates — ✅** Document cards show created and updated timestamps as relative labels, formatted with `date-fns`.
 
 ### Bonus features
 
@@ -119,7 +119,7 @@ npm test
 The suite includes sample tests at several layers:
 
 - **Unit tests** for CSV parsing and recursive key normalization. These helpers have deterministic input and output, and parsing edge cases such as blank cells or line endings are easy to cover directly.
-- **Service tests** for `getDocuments`. They verify the endpoint URL, conversion of the server's field names, and rejection of malformed payloads.
+- **Service tests** for `fetchDocuments`. They verify the endpoint URL, conversion of the server's field names, and that request or schema-validation failures are returned as errors.
 - **Provider tests** for document loading. They cover a successful initial fetch and the failure-then-retry path, where the provider exposes the error and then recovers with server data.
 - **Component flow test** for `AddDocumentSheet`. It enters document details, selects a CSV source, and checks that the resulting document is added to provider state. Native bottom-sheet and file-picker behavior is mocked so the test stays deterministic and does not require a simulator.
 
@@ -135,18 +135,20 @@ The pre-commit hook runs both checks. These tests provide focused coverage of pu
 ## Dependencies
 
 - **`axios`** — HTTP request handling.
-- **`@testing-library/react-native`** — Component and provider tests using user-visible interactions.
 - **`zod`** — Runtime validation for HTTP and WebSocket payloads, with TypeScript types inferred from the schemas.
 - **`expo-sqlite`** — SQLite-backed key-value store for the local document and notification cache.
 - **`expo-document-picker`** and **`expo-file-system`** — Select and read attachment CSV files, and create the JSON share file.
 - **`expo-sharing`** — Open the native share sheet for document exports.
+- **`expo-notifications`** — Present queued notification events as in-app notifications on iOS.
+- **`react-native-toast-message`** — Present queued notification events as in-app toasts on Android.
 - **`@gorhom/bottom-sheet`** — Add-document sheet presentation and interactions; [recommended by the Reanimated team](https://docs.swmansion.com/react-native-reanimated/examples/bottomsheet/).
 - **`date-fns`** — Relative date formatting.
-- **`react-native-toast-message`** — In-app notification presentation.
 - **`expo-asset`** — Resolve the bundled development CSV asset across platforms.
 - **`expo-crypto`** — Generate document IDs for locally created documents.
 - **`@expo/vector-icons`** — Native-friendly interface icons.
 - **`react-native-safe-area-context`** — Respect device safe areas around screen controls.
+
+Test and development dependencies are listed under `devDependencies` in `package.json`. The test suite uses **`@testing-library/react-native`** for component and provider tests.
 
 ## AI assistance
 
