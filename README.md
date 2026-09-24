@@ -20,7 +20,7 @@ The supplied server is a mock: it generates new random documents on every reques
 - **Native share button — ✅** Each document card can be shared as a JSON file through the platform share sheet.
 - **Relative dates — ✅** Document cards show created and updated timestamps as relative labels, formatted with `date-fns`.
 
-### Bonus features
+### Additional features
 
 - **Animated list/grid transition.** Switching document views remounts the `FlatList` with the new column count. Cards fade and move into the new layout with a short stagger.
 - **Document creation celebration.** After a document is added successfully, a brief burst of emoji confetti flies outward above the Add button and fades away. The reusable `CelebrationAnimation` component lives in `src/components/animations/` and uses Reanimated for UI-thread animations.
@@ -149,6 +149,18 @@ The pre-commit hook runs both checks. These tests provide focused coverage of pu
 - **`react-native-safe-area-context`** — Respect device safe areas around screen controls.
 
 Test and development dependencies are listed under `devDependencies` in `package.json`. The test suite uses **`@testing-library/react-native`** for component and provider tests.
+
+## Screenshots
+
+Each screenshot shows the app running in the iOS Simulator and Android Emulator side by side.
+
+### List view
+
+![List view on iOS Simulator and Android Emulator](screenshots/list-view.png)
+
+### Grid view
+
+![Grid view on iOS Simulator and Android Emulator](screenshots/grid-view.png)
 
 ## AI assistance
 
