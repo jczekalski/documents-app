@@ -162,6 +162,10 @@ Each screenshot shows the app running in the iOS Simulator and Android Emulator 
 
 ![Grid view on iOS Simulator and Android Emulator](screenshots/grid-view.png)
 
+### Add document sheet
+
+![Add document sheet on iOS Simulator and Android Emulator](screenshots/add-document.png)
+
 ## AI assistance
 
 AI tools were used to draft parts of the design system, UI components, implementation ideas, and this README. The code and documentation were reviewed and edited during development.
