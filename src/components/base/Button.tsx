@@ -13,6 +13,7 @@ import {
 export interface ButtonProps {
   label: string;
   onPress: () => void;
+  testID?: string;
   loading?: boolean;
   disabled?: boolean;
   icon?: React.ComponentProps<typeof MaterialCommunityIcons>["name"];
@@ -21,6 +22,7 @@ export interface ButtonProps {
 export function Button({
   label,
   onPress,
+  testID,
   loading = false,
   disabled = false,
   icon,
@@ -29,6 +31,7 @@ export function Button({
 
   return (
     <Pressable
+      testID={testID}
       onPress={onPress}
       disabled={isDisabled}
       style={({ pressed }) => [

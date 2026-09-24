@@ -29,6 +29,7 @@ export function AttachmentField({
       <Text style={styles.label}>File</Text>
 
       <Pressable
+        testID="choose-attachment-file-button"
         accessibilityRole="button"
         onPress={onPick}
         disabled={disabled}
@@ -55,7 +56,11 @@ export function AttachmentField({
             size={20}
             color={colors.success}
           />
-          <Text numberOfLines={1} style={styles.selectedFileText}>
+          <Text
+            testID="selected-attachment-file"
+            numberOfLines={1}
+            style={styles.selectedFileText}
+          >
             {file.name}
           </Text>
           <Pressable

@@ -31,6 +31,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@testing-library/react-native": "^14.0.1",
     "@types/jest": "29.5.14",
     "@types/react": "~19.2.2",
     "eslint": "^9.0.0",
@@ -52,7 +53,11 @@
     "prepare": "git config core.hooksPath .githooks"
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "moduleNameMapper": {
+      "^@/(.*)$": "<rootDir>/src/$1",
+      "\\.csv$": "<rootDir>/test/assetMock.js"
+    }
   },
   "private": true
 }

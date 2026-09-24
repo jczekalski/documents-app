@@ -213,6 +213,7 @@ export const AddDocumentSheet = forwardRef<
         </BottomSheetScrollView>
 
         <BottomButton
+          testID="submit-document-button"
           label="Submit"
           onPress={handleSubmit}
           loading={submitting}

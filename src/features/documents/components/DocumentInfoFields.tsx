@@ -28,6 +28,7 @@ export function DocumentInfoFields({
     <>
       <FormField label="Name">
         <BottomSheetTextInput
+          testID="document-title-input"
           value={title}
           onChangeText={onTitleChange}
           placeholder="Super Stout"
@@ -40,6 +41,7 @@ export function DocumentInfoFields({
 
       <FormField label="Version">
         <BottomSheetTextInput
+          testID="document-version-input"
           value={version}
           onChangeText={onVersionChange}
           placeholder="Version 1.3.0"
