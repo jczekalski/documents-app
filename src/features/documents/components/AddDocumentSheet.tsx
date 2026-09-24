@@ -8,7 +8,7 @@ import { Asset } from "expo-asset";
 import * as Crypto from "expo-crypto";
 import * as DocumentPicker from "expo-document-picker";
 import { forwardRef, useCallback, useMemo, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { BottomButton } from "@/components/base";
@@ -22,6 +22,10 @@ import {
 import { AttachmentField } from "@/features/documents/components/AttachmentField";
 import { DocumentInfoFields } from "@/features/documents/components/DocumentInfoFields";
 import type { Document } from "@/schemas/document";
+import {
+  formatDocumentVersion,
+  isValidDocumentVersion,
+} from "@/utils/documentVersion";
 import { readAttachmentCsv } from "@/utils/attachmentsCsv";
 
 import attachmentsCsv from "../../../../assets/attachements-data.csv";
@@ -56,7 +60,9 @@ export const AddDocumentSheet = forwardRef<
   const [error, setError] = useState<string | null>(null);
 
   const hasRequiredFields =
-    title.trim() !== "" && version.trim() !== "" && (file !== null || __DEV__);
+    title.trim() !== "" &&
+    isValidDocumentVersion(version) &&
+    (file !== null || __DEV__);
 
   const bottomSpacer = insets.bottom || spacing.lg;
 
@@ -100,8 +106,8 @@ export const AddDocumentSheet = forwardRef<
       return;
     }
 
-    if (!version.trim()) {
-      setError("Please enter a version.");
+    if (!isValidDocumentVersion(version)) {
+      setError("Please enter a valid version number like 1.2.0.");
       return;
     }
 
@@ -125,7 +131,7 @@ export const AddDocumentSheet = forwardRef<
         createdAt: now,
         updatedAt: now,
         title: title.trim(),
-        version: version.trim(),
+        version: formatDocumentVersion(version),
         attachments,
         contributors: [
           {
@@ -154,8 +160,8 @@ export const AddDocumentSheet = forwardRef<
       enableDynamicSizing={false}
       handleComponent={null}
       backgroundStyle={styles.background}
-      keyboardBehavior="interactive"
-      keyboardBlurBehavior="restore"
+      keyboardBehavior={Platform.OS === "ios" ? "extend" : "interactive"}
+      keyboardBlurBehavior={Platform.OS === "ios" ? "none" : "restore"}
       backdropComponent={(props) => (
         <BottomSheetBackdrop
           {...props}

@@ -111,7 +111,7 @@ describe("AddDocumentSheet", () => {
       );
     });
     expect(screen.getByTestId("documents").props.children).toContain(
-      '"version":"2.1.0"',
+      '"version":"Version 2.1.0"',
     );
     expect(screen.getByTestId("documents").props.children).toContain(
       '"attachments":["Annual report","Meeting notes"]',

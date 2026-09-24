@@ -22,6 +22,7 @@ import {
   typography,
 } from "@/constants/designSystem";
 import type { Document } from "@/schemas/document";
+import { formatDocumentVersion } from "@/utils/documentVersion";
 
 function formatRelativeDate(value: string): string {
   const date = new Date(value);
@@ -74,7 +75,9 @@ export function DocumentCard({
           <Text numberOfLines={1} style={styles.title}>
             {document.title}
           </Text>
-          <Text style={styles.version}>Version {document.version}</Text>
+          <Text style={styles.version}>
+            {formatDocumentVersion(document.version)}
+          </Text>
         </View>
         <View style={styles.dates}>
           <Text style={styles.dateText}>

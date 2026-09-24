@@ -8,6 +8,7 @@ import {
   spacing,
   typography,
 } from "@/constants/designSystem";
+import { isValidDocumentVersion } from "@/utils/documentVersion";
 
 interface DocumentInfoFieldsProps {
   title: string;
@@ -24,6 +25,9 @@ export function DocumentInfoFields({
   onTitleChange,
   onVersionChange,
 }: DocumentInfoFieldsProps) {
+  const hasInvalidVersion =
+    version.trim() !== "" && !isValidDocumentVersion(version);
+
   return (
     <>
       <FormField label="Name">
@@ -44,12 +48,23 @@ export function DocumentInfoFields({
           testID="document-version-input"
           value={version}
           onChangeText={onVersionChange}
-          placeholder="Version 1.3.0"
+          placeholder="1.3.0"
           placeholderTextColor={colors.textMuted}
           style={styles.input}
+          keyboardType="decimal-pad"
           returnKeyType="done"
           editable={!disabled}
         />
+        <Text
+          style={[
+            styles.validationMessage,
+            !hasInvalidVersion && styles.validationHint,
+          ]}
+        >
+          {hasInvalidVersion
+            ? "Enter a version number, e.g. 1.2.0."
+            : "Use a version like 1.2.0."}
+        </Text>
       </FormField>
     </>
   );
@@ -90,5 +105,14 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     fontSize: typography.md.fontSize,
     lineHeight: typography.md.lineHeight,
+  },
+  validationMessage: {
+    marginTop: spacing.xs,
+    color: colors.error,
+    fontSize: typography.xs.fontSize,
+    lineHeight: typography.xs.lineHeight,
+  },
+  validationHint: {
+    color: colors.textMuted,
   },
 });
