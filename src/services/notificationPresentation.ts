@@ -12,7 +12,7 @@ export async function configureNotificationPresentation(): Promise<void> {
 
   Notifications.setNotificationHandler({
     handleNotification: async () => ({
-      shouldPlaySound: true,
+      shouldPlaySound: !__DEV__,
       shouldSetBadge: false,
       shouldShowBanner: true,
       shouldShowList: true,
