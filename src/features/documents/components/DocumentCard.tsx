@@ -4,6 +4,7 @@ import { File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import {
   Alert,
+  Platform,
   Pressable,
   StyleProp,
   StyleSheet,
@@ -159,7 +160,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     padding: spacing.lg,
     marginBottom: spacing.lg,
-    ...shadows.card,
+    ...(Platform.OS === "android" ? shadows.card : shadows.card),
   },
   titleRow: {
     minHeight: 40,

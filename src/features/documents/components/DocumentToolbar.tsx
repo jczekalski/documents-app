@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 
-import { spacing } from "@/constants/designSystem";
+import { colors, spacing } from "@/constants/designSystem";
 import { SortButton } from "./SortButton";
 import {
   DOCUMENT_SORT_OPTIONS,
@@ -49,9 +49,11 @@ export function DocumentToolbar({
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.lg,
+    paddingTop: spacing.lg,
+    paddingBottom: spacing.sm,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    backgroundColor: colors.background,
   },
 });

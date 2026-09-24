@@ -80,14 +80,14 @@ export const fontWeights = {
 
 export const shadows = {
   card: {
-    shadowColor: "#000000",
+    shadowColor: "#667085",
     shadowOffset: {
       width: 0,
       height: 2,
     },
     shadowOpacity: 0.08,
     shadowRadius: 5,
-    elevation: 2,
+    elevation: 1,
   },
 } as const;
 

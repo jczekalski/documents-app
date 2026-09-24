@@ -35,7 +35,7 @@ export function DocumentInfoFields({
           testID="document-title-input"
           value={title}
           onChangeText={onTitleChange}
-          placeholder="Super Stout"
+          placeholder="New Document"
           placeholderTextColor={colors.textMuted}
           style={styles.input}
           returnKeyType="next"

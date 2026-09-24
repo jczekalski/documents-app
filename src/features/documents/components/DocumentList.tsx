@@ -1,7 +1,7 @@
 import { FlatList, StyleSheet, useWindowDimensions } from "react-native";
 import Animated, { FadeInDown, FadeOutUp } from "react-native-reanimated";
 
-import { spacing } from "@/constants/designSystem";
+import { colors, spacing } from "@/constants/designSystem";
 import type { Document } from "@/schemas/document";
 import { DocumentCard } from "./DocumentCard";
 import { DocumentViewMode } from "./ViewToggle";
@@ -52,6 +52,7 @@ export function DocumentList({
       // when switching between view modes
       key={viewMode}
       keyExtractor={(item) => item.id}
+      style={styles.list}
       contentContainerStyle={styles.content}
       renderItem={({ item, index }) => (
         // The FlatList remounts when view mode changes. Animate each card
@@ -84,8 +85,13 @@ export function DocumentList({
 }
 
 const styles = StyleSheet.create({
+  list: {
+    backgroundColor: colors.background,
+  },
   content: {
+    paddingTop: spacing.sm,
     paddingHorizontal: PADDING_BETWEEN_ITEMS,
     paddingBottom: spacing.xxxl,
+    backgroundColor: colors.background,
   },
 });
