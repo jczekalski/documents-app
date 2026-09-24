@@ -62,6 +62,9 @@ export function DocumentList({
               CARD_ENTER_STAGGER_INTERVAL_MS,
           ).duration(CARD_ENTER_DURATION_MS)}
           exiting={FadeOutUp.duration(CARD_EXIT_DURATION_MS)}
+          // Resolves elevation issues on Android
+          needsOffscreenAlphaCompositing
+          renderToHardwareTextureAndroid
         >
           <DocumentCard
             document={item}
