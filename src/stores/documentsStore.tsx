@@ -34,11 +34,10 @@ interface DocumentsProviderProps {
 }
 
 export function DocumentsProvider({ children }: DocumentsProviderProps) {
-  const [documents, setDocuments] = useState<Document[]>(() =>
-    readStoredArray<Document>(DOCUMENTS_STORAGE_KEY),
-  );
+  const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [persistenceEnabled, setPersistenceEnabled] = useState(false);
 
   const handleDocumentsFetchResult = useCallback(
     (result: DocumentsFetchResult) => {
@@ -63,18 +62,25 @@ export function DocumentsProvider({ children }: DocumentsProviderProps) {
   }, []);
 
   useEffect(() => {
-    storeArray(DOCUMENTS_STORAGE_KEY, documents);
-  }, [documents]);
+    if (persistenceEnabled) {
+      storeArray(DOCUMENTS_STORAGE_KEY, documents);
+    }
+  }, [documents, persistenceEnabled]);
 
   useEffect(() => {
     // Keep the initial request inside an async effect function. Calling
     // refetchDocuments here would synchronously set loading and trigger
-    // React's set-state-in-effect lint rule. Both paths share request and
-    // result handling. The initial path already starts with loading=true.
+    // React's set-state-in-effect lint rule.
     async function initialLoadDocuments() {
       const result = await fetchDocuments();
 
+      // Load saved documents only when this initial request fails, then let
+      // the shared handler expose the error.
+      if (result.error) {
+        setDocuments(readStoredArray<Document>(DOCUMENTS_STORAGE_KEY));
+      }
       handleDocumentsFetchResult(result);
+      setPersistenceEnabled(true);
     }
 
     initialLoadDocuments();
