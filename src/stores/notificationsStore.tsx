@@ -2,7 +2,7 @@ import type { Notification } from "@/schemas/notification";
 import { readStoredArray, storeArray } from "@/services/localStorage";
 import {
   configureNotificationPresentation,
-  presentQueuedNotification,
+  presentNotification,
 } from "@/services/notificationPresentation";
 import {
   connectNotifications,
@@ -20,6 +20,11 @@ import {
 } from "react";
 
 const NOTIFICATIONS_STORAGE_KEY = "notifications";
+// Limit max number of notifications stored.
+// Stored notification are only used for display purposes on a screen used for testing.
+export const MAX_NOTIFICATIONS = 50;
+// This short window groups back-to-back events when the server's random sleep is zero.
+const STATE_UPDATE_BATCH_DELAY_MS = 100;
 
 interface NotificationsContextValue {
   notifications: Notification[];
@@ -35,61 +40,92 @@ interface NotificationsProviderProps {
   children: ReactNode;
 }
 
-// Space notifications out so queued events are presented one at a time.
-const NOTIFICATION_DELAY = 6000;
+function loadNotificationHistory(): Notification[] {
+  return readStoredArray<Notification>(NOTIFICATIONS_STORAGE_KEY).slice(
+    0,
+    MAX_NOTIFICATIONS,
+  );
+}
 
 export function NotificationsProvider({
   children,
 }: NotificationsProviderProps) {
-  const [notifications, setNotifications] = useState<Notification[]>(() =>
-    readStoredArray<Notification>(NOTIFICATIONS_STORAGE_KEY),
-  );
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [connectionStatus, setConnectionStatus] =
     useState<NotificationConnectionStatus>("connecting");
-  const queueRef = useRef<Notification[]>([]);
-  const processingRef = useRef(false);
+  // Used to avoid writing the initial empty list over saved fallback history before
+  // the connection outcome is known.
+  const [persistenceEnabled, setPersistenceEnabled] = useState(false);
 
-  const processQueue = useCallback(async () => {
-    if (processingRef.current || queueRef.current.length === 0) {
+  const hasConnectedRef = useRef(false);
+  // This flag is used to ensure offline history is only loadded once and retries
+  // don't overwrite live state.
+  const fallbackLoadedRef = useRef(false);
+  const pendingNotificationsRef = useRef<Notification[]>([]);
+  const batchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleConnectionStatus = useCallback(
+    (status: NotificationConnectionStatus) => {
+      setConnectionStatus(status);
+
+      if (status === "connected") {
+        hasConnectedRef.current = true;
+        return;
+      }
+
+      if (
+        status === "reconnecting" &&
+        !hasConnectedRef.current &&
+        !fallbackLoadedRef.current
+      ) {
+        fallbackLoadedRef.current = true;
+        setNotifications(loadNotificationHistory());
+        setPersistenceEnabled(true);
+      }
+    },
+    [],
+  );
+
+  // Combine a burst of notifications into one state update, preserving newest-first ordering.
+  const flushPendingNotifications = useCallback(() => {
+    batchTimerRef.current = null;
+    const pending = pendingNotificationsRef.current.splice(0);
+
+    if (pending.length === 0) {
       return;
     }
 
-    processingRef.current = true;
-
-    while (queueRef.current.length > 0) {
-      const notification = queueRef.current.shift();
-
-      if (!notification) {
-        continue;
-      }
-
-      try {
-        await presentQueuedNotification(notification);
-      } catch (error) {
-        console.error("Failed to present notification", error);
-      }
-
-      await new Promise((resolve) => {
-        setTimeout(resolve, NOTIFICATION_DELAY);
-      });
-    }
-
-    processingRef.current = false;
+    setNotifications((current) =>
+      [...pending.reverse(), ...current].slice(0, MAX_NOTIFICATIONS),
+    );
+    setPersistenceEnabled(true);
   }, []);
 
   const addNotification = useCallback(
     (notification: Notification) => {
-      setNotifications((current) => [...current, notification]);
+      pendingNotificationsRef.current.push(notification);
 
-      queueRef.current.push(notification);
-      processQueue();
+      if (batchTimerRef.current === null) {
+        batchTimerRef.current = setTimeout(
+          flushPendingNotifications,
+          STATE_UPDATE_BATCH_DELAY_MS,
+        );
+      }
+
+      // Present each notification event immediately, only list and storage
+      // updates are batched.
+      void presentNotification(notification).catch((error) => {
+        console.error("Failed to present notification", error);
+      });
     },
-    [processQueue],
+    [flushPendingNotifications],
   );
 
   useEffect(() => {
-    storeArray(NOTIFICATIONS_STORAGE_KEY, notifications);
-  }, [notifications]);
+    if (persistenceEnabled) {
+      storeArray(NOTIFICATIONS_STORAGE_KEY, notifications);
+    }
+  }, [notifications, persistenceEnabled]);
 
   useEffect(() => {
     // Setup is async, so keep the disconnect function available to cleanup
@@ -102,14 +138,20 @@ export function NotificationsProvider({
       await configureNotificationPresentation();
 
       if (!isCancelled) {
-        disconnect = connectNotifications(addNotification, setConnectionStatus);
+        disconnect = connectNotifications(
+          addNotification,
+          handleConnectionStatus,
+        );
       }
     }
 
     connectAfterNotificationSetup().catch((error) => {
       console.error("Failed to set up local notifications", error);
       if (!isCancelled) {
-        disconnect = connectNotifications(addNotification, setConnectionStatus);
+        disconnect = connectNotifications(
+          addNotification,
+          handleConnectionStatus,
+        );
       }
     });
 
@@ -117,7 +159,7 @@ export function NotificationsProvider({
       isCancelled = true;
       disconnect?.();
     };
-  }, [addNotification]);
+  }, [addNotification, handleConnectionStatus]);
 
   const value = useMemo(
     () => ({

@@ -1,15 +1,16 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
 
-import { colors } from "@/constants/designSystem";
-
 import { CelebrationAnimation } from "@/components/animations/CelebrationAnimation";
 import { BottomButton } from "@/components/base";
+import type { Document } from "@/schemas/document";
 import { useDocuments } from "@/stores/documentsStore";
 import { useNotifications } from "@/stores/notificationsStore";
-import type { Document } from "@/schemas/document";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
+import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+import { colors } from "@/constants/designSystem";
 import {
   AddDocumentSheet,
   DocumentList,
@@ -78,7 +79,11 @@ export function DocumentsScreen() {
 
   return (
     <SafeAreaView style={styles.screen}>
-      <Header title="Documents" notificationCount={notificationCount} />
+      <Header
+        title="Documents"
+        notificationCount={notificationCount}
+        onNotificationsPress={() => router.push("/notifications")}
+      />
       <DocumentToolbar
         viewMode={viewMode}
         onViewModeChange={setViewMode}

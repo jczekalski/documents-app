@@ -27,7 +27,7 @@ export async function configureNotificationPresentation(): Promise<void> {
 
 const TOAST_VISIBILITY_TIME = 3000;
 
-export async function presentQueuedNotification(
+export async function presentNotification(
   notification: Notification,
 ): Promise<void> {
   const title = notification.documentTitle;
