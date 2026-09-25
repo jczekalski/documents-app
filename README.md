@@ -69,19 +69,20 @@ To run both platforms at once, start a separate Expo process for each platform a
 ### Required features
 
 - **Most recent documents in list or grid view — ✅** Documents are displayed using a single `FlatList`, with the view toggle switching between a single-column list and a two-column grid. Since both views use the same underlying data and only differ in their layout and level of detail, I chose to re-render the list when the view mode changes rather than maintaining two separate `FlatList` instances. This keeps the implementation simpler and avoids duplicating list configuration and behavior. When using grid view, the number of columns can be easily modified be updating the `GRID_MODE_COLUMNS_COUNT` variable. The sort selector is also fully functional and supports sorting by date and title.
-- **Real-time notifications for documents created by other users — ✅** A WebSocket connection receives notification events and presents them one at a time from a queue. Android uses in-app toast messages, iOS schedules native local notifications. The connection automatically retries with backoff after a disconnect, and the screen shows when it is connecting or reconnecting.
+- **Real-time notifications for documents created by other users — ✅** A WebSocket connection receives notification events and presents each event immediately. Android uses in-app toast messages, whereas iOS schedules native local notifications. The newest-first in-app list is updated in a short batch to reduce state updates during bursts. The connection automatically retries with backoff after a disconnect, and the home screen displays connecting/reconnecting status.
 - **Create a document — ✅** The add-document sheet collects a name, version, and attachment CSV, parses attachment names, then adds the new document to local state. In development, a bundled CSV supplies sample attachments when no file is selected. The mock server has no create endpoint, so the next successful fetch replaces locally created documents with its newly generated list.
 
 ### Optional features
 
-- **Basic offline support — ✅** Each provider restores its data array from `expo-sqlite/kv-store` at startup and saves it whenever state changes. If a document fetch fails, cached documents remain visible and an error banner offers a retry button. Pull to refresh also retries the request. A successful fetch replaces the server-provided list, including any locally added documents. When implementing offline mode properly, a much better solution would be to use an offline-first architecture or a database with offline synchronization, since resolving conflicts and syncing changes manually is difficult and error-prone.
-- **Local notifications — ✅ on iOS.** Received WebSocket events are permission-gated and scheduled as native local notifications one at a time on iOS. Android presents notifications as in-app toast messages. I chose this platform split to demonstrate two ways of solving the notification task; neither adds remote push delivery while the app is closed.
+- **Offline support — ✅** Documents load from the server first and use saved data only if the initial fetch fails, later retry failures keep the current list. Notifications use saved data only if the initial WebSocket connection fails, then add new events after reconnecting. The notification list is newest-first and capped. A much better solution in production would be to use an offline-first database with synchronization.
+- **Local notifications — ✅ on iOS.** Received WebSocket events are scheduled as native local notifications on iOS. Android presents notifications as in-app toast messages. I chose this platform split to demonstrate two ways of solving the notification task. Neither adds remote push delivery while the app is closed.
 - **Pull to refresh — ✅** Fetches a new array of mock documents. There is also an error banner which provides a retry button when a fetch fails.
 - **Native share button — ✅** Each document card can be shared as a JSON file through the platform share sheet.
 - **Relative dates — ✅** Document cards show created and updated timestamps as relative labels, formatted with `date-fns`.
 
 ### Additional features
 
+- **Notifications screen.** The bell button opens a screen with a list of the latest notifications, newest first. It updates from the WebSocket stream and if the server is unavailable at launch, the saved list is shown and new events are added after reconnecting.
 - **Animated list/grid transition.** Switching document views remounts the `FlatList` with the new column count. Cards fade and move into the new layout with a short stagger.
 - **Document creation celebration.** After a document is added successfully, a brief burst of emoji confetti flies outward above the Add button and fades away. The reusable `CelebrationAnimation` component lives in `src/components/animations/` and uses Reanimated for UI-thread animations.
 - **Validated server boundary and normalized data.** HTTP and WebSocket payloads are normalized from the server's field naming and parsed with Zod before entering app state. Malformed WebSocket messages are logged and skipped so one bad event does not break the stream.
@@ -104,7 +105,7 @@ src/
 ## Server integration
 
 - `GET /documents` returns an array of documents. The app normalizes field names, validates the array with `DocumentsSchema`, and replaces the current server-backed list on success.
-- `GET /notifications` is a WebSocket stream. Each message is parsed as JSON, normalized, validated with `NotificationSchema`, and queued for display. Invalid messages are logged and skipped. A closed connection is retried with backoff.
+- `GET /notifications` is a WebSocket stream. Each message is parsed as JSON, normalized, and validated with `NotificationSchema`. Presentation happens immediately, while list and storage updates are batched. Invalid messages are logged and skipped. A closed connection is retried with backoff.
 
 The app uses the configured platform URL for both endpoints. The mock server generates random data and does not persist changes made by clients.
 
@@ -139,8 +140,8 @@ The pre-commit hook runs both checks. These tests provide focused coverage of pu
 - **`expo-sqlite`** — SQLite-backed key-value store for the local document and notification cache.
 - **`expo-document-picker`** and **`expo-file-system`** — Select and read attachment CSV files, and create the JSON share file.
 - **`expo-sharing`** — Open the native share sheet for document exports.
-- **`expo-notifications`** — Present queued notification events as in-app notifications on iOS.
-- **`react-native-toast-message`** — Present queued notification events as in-app toasts on Android.
+- **`expo-notifications`** — Present notification events as in-app notifications on iOS.
+- **`react-native-toast-message`** — Present notification events as in-app toasts on Android.
 - **`@gorhom/bottom-sheet`** — Add-document sheet presentation and interactions; [recommended by the Reanimated team](https://docs.swmansion.com/react-native-reanimated/examples/bottomsheet/).
 - **`date-fns`** — Relative date formatting.
 - **`expo-asset`** — Resolve the bundled development CSV asset across platforms.
@@ -165,6 +166,10 @@ Each screenshot shows the app running in the iOS Simulator and Android Emulator 
 ### Add document sheet
 
 ![Add document sheet on iOS Simulator and Android Emulator](screenshots/add-document.png)
+
+### Notifications screen
+
+![Add document sheet on iOS Simulator and Android Emulator](screenshots/notifications.png)
 
 ## AI assistance
 
