@@ -4,7 +4,6 @@ import { File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import {
   Alert,
-  Platform,
   Pressable,
   StyleProp,
   StyleSheet,
@@ -13,17 +12,19 @@ import {
   ViewStyle,
 } from "react-native";
 
+import { Card } from "@/components/base";
 import {
   colors,
   fontWeights,
   iconSize,
   radius,
-  shadows,
   spacing,
   typography,
 } from "@/constants/designSystem";
 import type { Document } from "@/schemas/document";
 import { formatDocumentVersion } from "@/utils/documentVersion";
+
+const DOCUMENT_CARD_SHARE_BUTTON_SIZE = 40;
 
 function formatRelativeDate(value: string): string {
   const date = new Date(value);
@@ -68,7 +69,7 @@ export function DocumentCard({
   const titleRowFlexDirection = compact ? "column" : "row";
 
   return (
-    <View style={[styles.card, style]}>
+    <Card withShadow style={[styles.card, style]}>
       <Pressable onPress={() => onPress?.(document)}>
         <View
           style={[styles.titleRow, { flexDirection: titleRowFlexDirection }]}
@@ -121,7 +122,7 @@ export function DocumentCard({
           color={colors.primary}
         />
       </Pressable>
-    </View>
+    </Card>
   );
 }
 
@@ -156,14 +157,9 @@ function DocumentSection({ icon, title, items }: DocumentSectionProps) {
 const styles = StyleSheet.create({
   card: {
     position: "relative",
-    backgroundColor: colors.surface,
-    borderRadius: radius.md,
-    padding: spacing.lg,
     marginBottom: spacing.lg,
-    ...(Platform.OS === "android" ? shadows.card : shadows.card),
   },
   titleRow: {
-    minHeight: 40,
     flexDirection: "row",
     alignItems: "baseline",
     marginBottom: spacing.sm,
@@ -182,8 +178,8 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: spacing.sm,
     right: spacing.sm,
-    width: 40,
-    height: 40,
+    width: DOCUMENT_CARD_SHARE_BUTTON_SIZE,
+    height: DOCUMENT_CARD_SHARE_BUTTON_SIZE,
     alignItems: "center",
     justifyContent: "center",
     borderRadius: radius.full,

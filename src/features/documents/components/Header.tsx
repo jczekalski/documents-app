@@ -10,6 +10,8 @@ import {
   typography,
 } from "@/constants/designSystem";
 
+const NOTIFICATION_BUTTON_SIZE = 40;
+
 interface HeaderProps {
   title: string;
   notificationCount?: number;
@@ -75,8 +77,8 @@ const styles = StyleSheet.create({
   },
 
   notificationButton: {
-    width: 40,
-    height: 40,
+    width: NOTIFICATION_BUTTON_SIZE,
+    height: NOTIFICATION_BUTTON_SIZE,
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
